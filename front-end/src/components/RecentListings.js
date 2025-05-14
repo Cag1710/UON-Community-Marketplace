@@ -1,0 +1,65 @@
+import React from 'react';
+
+function RecentListings() {
+  const listings = [
+    { title: 'Textbooks for IT', price: '$30' },
+    { title: 'Bicycle', price: '$150' },
+    { title: 'Desk Lamp', price: '$20' },
+    { title: 'Office Chair', price: '$60' },
+  ];
+
+  return (
+    <section style={styles.container}>
+      <h2 style={styles.heading}>Recent Listings</h2>
+      <div style={styles.grid}>
+        {listings.map((item, index) => (
+          <div key={index} style={styles.card}>
+            <div style={styles.imagePlaceholder}></div>
+            <h3 style={styles.title}>{item.title}</h3>
+            <p style={styles.price}>{item.price}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const styles = {
+  container: {
+    padding: '40px',
+    backgroundColor: '#f8f8f8',
+  },
+  heading: {
+    fontSize: '24px',
+    marginBottom: '20px',
+  },
+  grid: {
+    display: 'flex',
+    gap: '20px',
+    flexWrap: 'wrap',
+  },
+  card: {
+    width: '200px',
+    padding: '20px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    textAlign: 'center',
+  },
+  imagePlaceholder: {
+    height: '100px',
+    backgroundColor: '#ddd',
+    borderRadius: '4px',
+    marginBottom: '10px',
+  },
+  title: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  price: {
+    fontSize: '14px',
+    color: '#333',
+  },
+};
+
+export default RecentListings;
