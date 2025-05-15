@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAuth, signOut } from 'firebase/auth';
 
 function WelcomeSection() {
   const userName = 'Maria'; // Replace this later with real user name
@@ -12,6 +13,11 @@ function WelcomeSection() {
           <button style={styles.primaryBtn}>Post a Listing</button>
           <button style={styles.secondaryBtn}>View My Messages</button>
         </div>
+      </div>
+
+      {/* ✅ Sign Out Button just under the navbar */}
+      <div style={styles.signOutContainer}>
+        <button style={styles.signOut} onClick={() => signOut(getAuth())}>Sign Out</button>
       </div>
 
       {/* RIGHT: Waving Illustration */}
@@ -34,6 +40,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
+    position: 'relative', // ✅ Required for absolute positioning to work
   },
   left: {
     flex: 1,
@@ -82,7 +89,23 @@ const styles = {
     marginTop: '20px',      
     marginRight: '525px',     
     borderRadius: '12px',   
-  }  
+  },
+  signOutContainer: {
+    position: 'absolute',
+    top: '20px',
+    right: '40px',
+    zIndex: 1,
+  },
+  signOut: {
+    padding: '8px 16px',
+    fontSize: '14px',
+    backgroundColor: 'transparent',
+    color: '#1A1A40',
+    border: '2px solid #1A1A40',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+  },
 };
 
 export default WelcomeSection;
