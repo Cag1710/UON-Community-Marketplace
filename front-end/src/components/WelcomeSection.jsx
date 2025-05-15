@@ -72,7 +72,7 @@ const styles = {
     flex: 1,
     textAlign: 'center',
   },
-  image: {
+  diffimage: {
     height: '120px',
   },
   image: {

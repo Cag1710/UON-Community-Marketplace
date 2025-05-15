@@ -1,39 +1,32 @@
-import { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import Navbar from "../components/Navbar";
 
 export default function LoginPage() {
-
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-
-    const navigate = useNavigate();
-
-    async function logIn() {
-        try {
-            await signInWithEmailAndPassword(getAuth(), email, password);
-            navigate('/articles');
-        } catch (e) {
-            setError(e.message);
-        }
-    }
-
     return (
         <>
-        <h1>Log In</h1>
-        {error && <p>{error}</p>}
-        <input 
-            placeholder='Your email address'
-            value={email}
-            onChange={e => setEmail(e.target.value)} />
-        <input 
-            placeholder='Your password'
-            type='password'
-            value={password}
-            onChange={e => setPassword(e.target.value)} />
-        <button onClick={logIn}>Log In</button>
-        <Link to='/create-account'>Don't have an account? Create one here</Link>
+            <Navbar />
+            <div className="login-account-container">
+  
+            <h2>Sign in</h2>
+            {/* Just a placeholder for the moment didnt have a lot of time right now */}
+            <div className="avatar-placeholder">👤</div> 
+
+            <form className="form">
+                <div className="name-row">
+                <input type="text" placeholder="First name*" />
+                <input type="text" placeholder="Last name*" />
+                </div>
+                <input type="text" placeholder="Username*" />
+                <input type="email" placeholder="Email*" />
+                <input type="password" placeholder="Password*" />
+                <input type="password" placeholder="Confirm Password*" />
+                <div className="button-row">
+                <button type="button">Back</button>
+                <button type="submit">Create Account</button>
+                </div>
+            </form>
+
+            <small className="help-text">Help</small>
+            </div>
         </>
     );
-}
+  }
