@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth';
+import useUser from '../useUser';
 
 function Navbar() {
+
   return (
     <nav style={styles.nav}>
       <div style={styles.left}>
@@ -10,9 +14,8 @@ function Navbar() {
 
       <div style={styles.links}>
         <Link to="/" style={styles.link}>Home</Link>
-        <Link to="/create-account" style={styles.link}>Create Account</Link>
-        <Link to="/login" style={styles.link}>Login</Link>
-        <Link to="/contact" style={styles.link}>Contact</Link>
+        <Link to="/listings" style={styles.link}>Listings</Link>
+        <Link to="/contact" style={styles.link}>Contact Us</Link>
         <Link to="/help" style={styles.link}>Help</Link>
       </div>
 
@@ -49,6 +52,7 @@ const styles = {
     textDecoration: 'none',
     fontSize: '16px',
     fontWeight: '500',
+    cursor: 'pointer',
   },
   profile: {
     flex: 1,

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Hero() {
+  const navigate = useNavigate();
   return (
     <section style={styles.hero}>
       <div>
@@ -9,8 +11,8 @@ function Hero() {
           Buy, sell, and connect with students just like you.
         </p>
         <div style={styles.buttonGroup}>
-          <button style={styles.primaryBtn}>Create Account</button>
-          <button style={styles.secondaryBtn}>Log In</button>
+          <button style={styles.primaryBtn} onClick={() => navigate('/create-account')}>Create Account</button>
+          <button style={styles.secondaryBtn} onClick={() => navigate('/login')}>Log In</button>
         </div>
       </div>
     </section>

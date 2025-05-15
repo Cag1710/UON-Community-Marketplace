@@ -2,13 +2,12 @@ import './App.css'
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import LoggedOutHome from './pages/LoggedOutHome';
-import LoggedInHome from './pages/LoggedInHome'; 
+import HomePage from './pages/HomePage';
 
 const routes = [
   {
     path: '/',
-    element: <LoggedInHome />
+    element: <HomePage />
   },
   {
     path: '/login',
