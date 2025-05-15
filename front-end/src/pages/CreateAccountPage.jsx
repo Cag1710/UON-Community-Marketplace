@@ -1,48 +1,35 @@
-import { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import Navbar from "../components/Navbar";
+
 
 export default function CreateAccountPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
+  return (
+    <>
+        <Navbar />
+        <div className="create-account-container">
 
-    const navigate = useNavigate();
+        <h2>Create Account</h2>
+        {/* Just a placeholder for the moment didnt have a lot of time right now */}
+        <div className="avatar-placeholder">👤</div>
 
-    async function createAccount() {
-        if (password !== confirmPassword) {
-            setError('Password and Confirm Password do not match!');
-            return;
-        }
-        try {
-            await createUserWithEmailAndPassword(getAuth(), email, password);
-            navigate('/articles');
-        } catch (e) {
-            setError(e.message);
-        }
-    }
-    
-    return (
-        <>
-        <h1>Create Account</h1>
-        {error && <p>{error}</p>}
-        <input 
-            placeholder='Your email address'
-            value={email}
-            onChange={e => setEmail(e.target.value)} />
-        <input 
-            placeholder='Your password'
-            type='password'
-            value={password}
-            onChange={e => setPassword(e.target.value)} />
-        <input 
-            placeholder='Confirm password'
-            type='password'
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)} />
-        <button onClick={createAccount}>Create Account</button>
-        <Link to='/login'>Already have an account? Log In</Link>
-        </>
-    );
+        <p>Please enter your details below to create your account.</p>
+
+        <form className="form">
+        <div className="name-row">
+            <input type="text" placeholder="First name*" />
+            <input type="text" placeholder="Last name*" />
+        </div>
+        <input type="text" placeholder="Username*" />
+        <input type="email" placeholder="Email*" />
+        <input type="password" placeholder="Password*" />
+        <input type="password" placeholder="Confirm Password*" />
+        <div className="button-row">
+            <button type="button">Back</button>
+            <button type="submit">Create Account</button>
+        </div>
+        </form>
+
+        <small className="help-text">Help</small>
+        </div>
+    </>
+  );
 }

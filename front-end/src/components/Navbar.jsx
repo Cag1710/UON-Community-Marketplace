@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
@@ -6,12 +7,15 @@ function Navbar() {
       <div style={styles.left}>
         <h2 style={styles.logo}>UON Community Marketplace</h2>
       </div>
+
       <div style={styles.links}>
-        <a href="#" style={styles.link}>Home</a>
-        <a href="#" style={styles.link}>Listings</a>
-        <a href="#" style={styles.link}>Contact</a>
-        <a href="#" style={styles.link}>Help</a>
+        <a href="/" style={styles.link}>Home</a>
+        <a href="/create-account" style={styles.link}>Create Account</a>
+        <a href="/login" style={styles.link}>Login</a>
+        <a href="/contact" style={styles.link}>Contact</a>
+        <a href="/help" style={styles.link}>Help</a>
       </div>
+
       <div style={styles.profile}>
         <div style={styles.profileIcon}>👤</div>
       </div>
@@ -38,10 +42,8 @@ const styles = {
   links: {
     flex: 2,
     display: 'flex',
-    justifyContent: 'space-evenly', // NEW: evenly spaces out the links
-    
+    justifyContent: 'space-evenly',
   },
-  
   link: {
     color: 'white',
     textDecoration: 'none',

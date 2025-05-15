@@ -1,25 +1,24 @@
 import './App.css'
-import Layout from './Layout';
-import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import NavBar from './NavBar';
+import LoggedOutHome from './pages/LoggedOutHome';
+import LoggedInHome from './pages/LoggedInHome'; 
 
-const routes = [{
-  path: '/',
-  element: <Layout />,
-  children: [{
+const routes = [
+  {
     path: '/',
-    element: <HomePage />
-  }, {
+    element: <LoggedInHome />
+  },
+  {
     path: '/login',
     element: <LoginPage />
-  }, {
+  },
+  {
     path: '/create-account',
     element: <CreateAccountPage />
-  }]
-}]
+  }
+];
 
 
 const router = createBrowserRouter(routes);
