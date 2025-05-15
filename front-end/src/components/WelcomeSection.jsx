@@ -40,7 +40,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    position: 'relative', // ✅ Required for absolute positioning to work
+    position: 'relative',
   },
   left: {
     flex: 1,

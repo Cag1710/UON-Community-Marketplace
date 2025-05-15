@@ -1,8 +1,5 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
-import useUser from '../useUser';
 
 function Navbar() {
 
