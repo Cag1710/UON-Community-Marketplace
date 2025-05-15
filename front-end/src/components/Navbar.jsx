@@ -9,11 +9,11 @@ function Navbar() {
       </div>
 
       <div style={styles.links}>
-        <a href="/" style={styles.link}>Home</a>
-        <a href="/create-account" style={styles.link}>Create Account</a>
-        <a href="/login" style={styles.link}>Login</a>
-        <a href="/contact" style={styles.link}>Contact</a>
-        <a href="/help" style={styles.link}>Help</a>
+        <Link to="/" style={styles.link}>Home</Link>
+        <Link to="/create-account" style={styles.link}>Create Account</Link>
+        <Link to="/login" style={styles.link}>Login</Link>
+        <Link to="/contact" style={styles.link}>Contact</Link>
+        <Link to="/help" style={styles.link}>Help</Link>
       </div>
 
       <div style={styles.profile}>
