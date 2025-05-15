@@ -11,17 +11,11 @@ export default function LoginPage() {
             <div className="avatar-placeholder">👤</div> 
 
             <form className="form">
-                <div className="name-row">
-                <input type="text" placeholder="First name*" />
-                <input type="text" placeholder="Last name*" />
-                </div>
-                <input type="text" placeholder="Username*" />
-                <input type="email" placeholder="Email*" />
+                <input type="text" placeholder="Username/Email*" />
                 <input type="password" placeholder="Password*" />
-                <input type="password" placeholder="Confirm Password*" />
                 <div className="button-row">
                 <button type="button">Back</button>
-                <button type="submit">Create Account</button>
+                <button type="submit">Sign In</button>
                 </div>
             </form>
 
