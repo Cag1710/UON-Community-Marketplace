@@ -31,4 +31,18 @@ async function start() {
     })
 }
 
+app.get('/', (req, res) => {
+    res.send('Community Marketplace API is running!');
+});
+
+app.get('/api/listings', async (req, res) => {
+    try {
+        const listings = await db.collection('listings').find().toArray();
+        res.json(listings);
+    } catch (error) {
+        console.error('Error fetching listings:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 start();
