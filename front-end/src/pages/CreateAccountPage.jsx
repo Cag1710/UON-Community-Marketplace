@@ -2,6 +2,8 @@ import Navbar from "../components/Navbar";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import ProfileIcon from '../assets/profile.svg';
+import UoNLogo from '../assets/uonlogo.svg';
 
 export default function CreateAccountPage() {
   const [email, setEmail] = useState('');
@@ -30,12 +32,14 @@ export default function CreateAccountPage() {
 
   return (
     <>
-      <Navbar />
-      <div className="create-account-container">
+      <div className="account-container">
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <h2>Create Account</h2>
-        <div className="avatar-placeholder">👤</div>
-        <p>Please enter your details below to create your account.</p>
+        <img src={UoNLogo} className="logo"></img>
+        <h2 className="headingtext">Create Account</h2>
+        <div className="icon-wrapper">
+          <img src={ProfileIcon} alt="Profile Icon" className="profile-icon" />
+        </div>
+        <p className="generaltext">Please enter your details below to create your account.</p>
 
         <form className="form" onSubmit={createAccount}>
           <div className="name-row">
@@ -47,12 +51,14 @@ export default function CreateAccountPage() {
           <input type="password" placeholder="Password*" value={password} onChange={e => setPassword(e.target.value)} />
           <input type="password" placeholder="Confirm Password*" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
           <div className="button-row">
-            <Link to='/'><button type="button">Back</button></Link>
-            <button type="submit">Create Account</button>
+            <Link to='/'><button type="button" className="form-button">Back</button></Link>
+            <button type="submit" className="form-button">Create Account</button>
           </div>
         </form>
 
-        <small className="help-text">Help</small>
+        <div className="form-footer">
+          <small className="help-text">Help</small>
+        </div>
       </div>
     </>
   );
