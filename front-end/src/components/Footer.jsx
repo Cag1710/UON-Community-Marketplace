@@ -15,7 +15,7 @@ function Footer() {
 
 const styles = {
   footer: {
-    backgroundColor: '#1A1A40',
+    backgroundColor: '#4A72A4',
     color: 'white',
     padding: '30px 40px',
     display: 'flex',
@@ -35,6 +35,7 @@ const styles = {
     color: 'white',
     textDecoration: 'none',
     fontSize: '14px',
+    fontFamily: 'Roboto, sans-serif',
   },
 };
 

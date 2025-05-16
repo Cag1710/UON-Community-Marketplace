@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import ProfileIcon from "../assets/profile.svg"
+import useUser from '../useUser';
 
 function Navbar() {
+
+  const { isLoading, user } = useUser();
 
   return (
     <nav style={styles.nav}>
@@ -17,7 +21,9 @@ function Navbar() {
       </div>
 
       <div style={styles.profile}>
-        <div style={styles.profileIcon}>👤</div>
+        {!isLoading && user && (
+          <img src={ProfileIcon} alt="Profile Icon" style={styles.profileIcon} />
+        )}
       </div>
     </nav>
   );
@@ -25,7 +31,7 @@ function Navbar() {
 
 const styles = {
   nav: {
-    backgroundColor: '#1A1A40',
+    backgroundColor: '#4A72A4',
     color: 'white',
     display: 'flex',
     justifyContent: 'space-between',
@@ -37,6 +43,7 @@ const styles = {
   },
   logo: {
     margin: 0,
+    fontFamily: 'Roboto, sans-serif',
     fontSize: '20px',
   },
   links: {
@@ -47,6 +54,7 @@ const styles = {
   link: {
     color: 'white',
     textDecoration: 'none',
+    fontFamily: 'Roboto, sans-serif',
     fontSize: '16px',
     fontWeight: '500',
     cursor: 'pointer',
