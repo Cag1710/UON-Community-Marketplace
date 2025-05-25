@@ -33,7 +33,7 @@ export default function LoginPage() {
                     <img src={ProfileIcon} alt="Profile Icon" className="profile-icon" />
                 </div>
 
-                <form className="form">
+                <form className="form" onSubmit={logIn}>
                     <input type="text" placeholder="Username/Email*" value={email} onChange={e => setEmail(e.target.value)} />
                     <input type="password" placeholder="Password*" value={password} onChange={e => setPassword(e.target.value)} />
                     <div className="checkbox-container">
@@ -47,10 +47,10 @@ export default function LoginPage() {
                 </form>
 
                 <div className="form-footer">
-                    <small className="forgot-text">Forgot Password?</small>
+                    <Link to='/forgot-password'><small className="forgot-text">Forgot Password?</small></Link>
                     <small className="help-text">Help</small>
                 </div>
             </div>
         </>
     );
-  }
+}
