@@ -18,6 +18,7 @@ function Navbar() {
         <Link to="/listings" style={styles.link}>Listings</Link>
         <Link to="/contact" style={styles.link}>Contact Us</Link>
         <Link to="/help" style={styles.link}>Help</Link>
+        <Link to='/listings' style={styles.link}>Listings</Link>
       </div>
 
       <div style={styles.profile}>
