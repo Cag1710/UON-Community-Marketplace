@@ -4,6 +4,7 @@ import CreateAccountPage from './pages/CreateAccountPage';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/HomePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ListingsPage from './pages/ListingsPage';
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: '/forgot-password',
     element: <ForgotPasswordPage />
+  },
+  {
+    path: '/listings',
+    element: <ListingsPage />
   }
 ];
 
