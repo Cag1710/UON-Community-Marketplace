@@ -1,5 +1,8 @@
 import express from 'express';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 
