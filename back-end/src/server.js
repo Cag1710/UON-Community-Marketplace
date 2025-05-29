@@ -1,8 +1,16 @@
 import express from 'express';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+<<<<<<< Updated upstream
+=======
+import dotenv from 'dotenv';
+import cors from 'cors';
+
+dotenv.config();
+>>>>>>> Stashed changes
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 let db;
@@ -20,7 +28,13 @@ async function connectToDB() {
 
     await client.connect();
 
+<<<<<<< Updated upstream
     db = client.db('community-marketplace-db')
+=======
+    db = client.db('UON-Community-Marketplace');
+
+   /* db = client.db('full-stack-react-db'); */
+>>>>>>> Stashed changes
 }
 
 async function start() {
@@ -45,4 +59,33 @@ app.get('/api/listings', async (req, res) => {
     }
 });
 
+<<<<<<< Updated upstream
+=======
+async function start() {
+    await connectToDB();
+
+    app.listen(8000, function() {
+        console.log('Server is listening on port 8000');
+    })
+}
+
+app.post('/api/listings', async (req, res) => {
+    try {
+        console.log('Received request to create listing:', req.body);
+        const { title, price, category, description } = req.body;
+        const result = await db.collection('listings').insertOne({
+            title,
+            price,
+            category,
+            description,
+            createdAt: new Date()
+        });
+        res.status(201).json({ message: 'Listing created', id: result.insertedId });
+    } catch (error) {
+        console.error('Error creating listing:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+>>>>>>> Stashed changes
 start();

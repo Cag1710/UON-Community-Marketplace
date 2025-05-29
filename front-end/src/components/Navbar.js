@@ -7,10 +7,18 @@ function Navbar() {
         <h2 style={styles.logo}>UON Community Marketplace</h2>
       </div>
       <div style={styles.links}>
+<<<<<<< Updated upstream:front-end/src/components/Navbar.js
         <a href="#" style={styles.link}>Home</a>
         <a href="#" style={styles.link}>Listings</a>
         <a href="#" style={styles.link}>Contact</a>
         <a href="#" style={styles.link}>Help</a>
+=======
+        <Link to="/" style={styles.link}>Home</Link>
+        <Link to="/listings" style={styles.link}>Listings</Link>
+        <Link to="/contact" style={styles.link}>Contact Us</Link>
+        <Link to="/help" style={styles.link}>Help</Link>
+        <Link to="/create-listing" style={styles.link}>Create Listing</Link>
+>>>>>>> Stashed changes:front-end/src/components/Navbar.jsx
       </div>
       <div style={styles.profile}>
         <div style={styles.profileIcon}>👤</div>
