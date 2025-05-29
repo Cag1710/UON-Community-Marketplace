@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/HomePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ListingsPage from './pages/ListingsPage';
+import CreateListingPage from './pages/CreateListingPage';
 
 const routes = [
   {
@@ -26,6 +27,10 @@ const routes = [
   {
     path: '/listings',
     element: <ListingsPage />
+  },
+  {
+    path: '/create-listing',
+    element: <CreateListingPage />
   }
 
   
