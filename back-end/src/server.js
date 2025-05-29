@@ -1,11 +1,13 @@
 import express from 'express';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 let db;
@@ -25,7 +27,7 @@ async function connectToDB() {
 
     await client.connect();
 
-    db = client.db('full-stack-react-db');
+    db = client.db('UON-Community-Marketplace');
 }
 
 app.get('/api/listings', async (req, res) => {
@@ -45,5 +47,23 @@ async function start() {
         console.log('Server is listening on port 8000');
     })
 }
+
+app.post('/api/listings', async (req, res) => {
+    try {
+        console.log('POST /api/listings', req.body); 
+        const { title, price, category, description } = req.body;
+        const result = await db.collection('listings').insertOne({
+            title,
+            price,
+            category,
+            description,
+            createdAt: new Date()
+        });
+        res.status(201).json({ message: 'Listing created', id: result.insertedId });
+    } catch (error) {
+        console.error('Error creating listing:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 start();

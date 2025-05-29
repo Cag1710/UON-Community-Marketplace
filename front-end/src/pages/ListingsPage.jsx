@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 
 function ListingsPage() {
+  const [listings, setListings] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/listings')
+      .then(res => res.json())
+      .then(data => setListings(data));
+  }, []);
+
   return (
     <>
       <Navbar />
       <div style={{ display: 'flex', padding: '32px', background: '#f9f9f9', minHeight: '100vh' }}>
-        {/* Sidebar Filters */}
+        {/* Sidebar */}
         <aside style={{
           minWidth: 240,
           background: '#f2f2f2',
@@ -23,12 +31,12 @@ function ListingsPage() {
               <li><label><input type="checkbox" /> Electronic</label></li>
               <li><label><input type="checkbox" /> Furniture</label></li>
               <li><label><input type="checkbox" /> Clothing</label></li>
-              <li><label><input type="checkbox" /> etc</label></li>
+              <li><label><input type="checkbox" /> Other</label></li>
             </ul>
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Body (Listings) */}
         <main style={{ flex: 1 }}>
           <h1 style={{ textAlign: 'center', marginBottom: 32 }}>Items</h1>
           <div style={{
@@ -36,8 +44,8 @@ function ListingsPage() {
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 32,
           }}>
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} style={{
+            {listings.map((listing, i) => (
+              <div key={listing._id || i} style={{
                 background: '#d3d3d3',
                 borderRadius: 24,
                 padding: 24,
@@ -60,10 +68,11 @@ function ListingsPage() {
                 </div>
                 <div style={{ width: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                    <span>Textbook</span>
-                    <span>$50</span>
+                    <span>{listing.category}</span>
+                    <span>${listing.price}</span>
                   </div>
-                  <div>Description Description Description</div>
+                  <div>{listing.title}</div>
+                  <div>{listing.description}</div>
                 </div>
               </div>
             ))}
