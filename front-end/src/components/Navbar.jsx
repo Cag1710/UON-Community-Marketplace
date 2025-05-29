@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import ProfileIcon from "../assets/profile.svg"
+import UoNLogo from "../assets/uonlogo.svg";
 import useUser from '../useUser';
 
 function Navbar() {
@@ -10,6 +11,7 @@ function Navbar() {
   return (
     <nav style={styles.nav}>
       <div style={styles.left}>
+        <img src={UoNLogo} alt="UON Logo" style={styles.logoImg} />
         <h2 style={styles.logo}>UON Community Marketplace</h2>
       </div>
 
@@ -18,7 +20,6 @@ function Navbar() {
         <Link to="/listings" style={styles.link}>Listings</Link>
         <Link to="/contact" style={styles.link}>Contact Us</Link>
         <Link to="/help" style={styles.link}>Help</Link>
-        <Link to='/listings' style={styles.link}>Listings</Link>
       </div>
 
       <div style={styles.profile}>
@@ -41,6 +42,8 @@ const styles = {
   },
   left: {
     flex: 1,
+    display: 'flex',
+    alignItems: 'center',
   },
   logo: {
     margin: 0,
@@ -78,6 +81,15 @@ const styles = {
     fontSize: '18px',
     cursor: 'pointer',
   },
+  logoImg: {
+  width: '40px',
+  height: '40px',
+  marginRight: '12px',
+  verticalAlign: 'middle',
+  borderRadius: '50%',
+  objectFit: 'cover',
+  background: 'white'
+},
 };
 
 export default Navbar;

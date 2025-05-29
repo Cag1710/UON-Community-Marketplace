@@ -27,6 +27,8 @@ const routes = [
     path: '/listings',
     element: <ListingsPage />
   }
+
+  
 ];
 
 
