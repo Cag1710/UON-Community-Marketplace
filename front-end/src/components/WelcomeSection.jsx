@@ -11,7 +11,7 @@ function WelcomeSection() {
         <h1 style={styles.heading}>Welcome back, {userName}!</h1>
         <div style={styles.buttons}>
           <button style={styles.primaryBtn}>Post a Listing</button>
-          <button style={styles.secondaryBtn}>View My Messages</button>
+          <a href="/messages"><button style={styles.secondaryBtn}>View My Messages</button></a>
         </div>
       </div>
 

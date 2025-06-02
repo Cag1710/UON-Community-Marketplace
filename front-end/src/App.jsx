@@ -1,6 +1,7 @@
 import './App.css'
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
+import MessagePage from './pages/MessagePage';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/HomePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -19,21 +20,7 @@ const routes = [
   {
     path: '/create-account',
     element: <CreateAccountPage />
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPasswordPage />
-  },
-  {
-    path: '/listings',
-    element: <ListingsPage />
-  },
-  {
-    path: '/create-listing',
-    element: <CreateListingPage />
   }
-
-  
 ];
 
 
