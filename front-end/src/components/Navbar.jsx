@@ -21,6 +21,7 @@ function Navbar() {
         <Link to="/contact" style={styles.link}>Contact Us</Link>
         <Link to="/help" style={styles.link}>Help</Link>
         <Link to="/create-listing" style={styles.link}>Create Listing</Link>
+        <Link to="/messages" style={styles.link}>Messages</Link>
       </div>
 
       <div style={styles.profile}>

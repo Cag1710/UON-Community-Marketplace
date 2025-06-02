@@ -20,6 +20,22 @@ const routes = [
   {
     path: '/create-account',
     element: <CreateAccountPage />
+  },
+  {
+    path: '/listings',
+    element: <ListingsPage />
+  },
+  {
+    path: '/create-listing',
+    element: <CreateListingPage />
+  },
+  {
+    path: '/messages',
+    element: <MessagePage />
+  },
+  {
+    path: 'forgot-password',
+    element: <ForgotPasswordPage />
   }
 ];
 

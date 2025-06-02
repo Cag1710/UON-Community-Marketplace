@@ -120,9 +120,8 @@ input {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Optional: style checkbox itself */
 .checkbox-container input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #4A72A4; /* Blue tick on supported browsers */
+  accent-color: #4A72A4; 
 }
