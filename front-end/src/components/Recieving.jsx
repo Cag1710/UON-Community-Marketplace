@@ -12,7 +12,7 @@ function Recieving() {
         </div>
     );
 }
-
+``
 const styles = {
     container: {
         padding: "10px",
@@ -36,11 +36,13 @@ const styles = {
   username: {
     paddingLeft: "50px",
     marginTop: "0px",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    fontFamily: 'Roboto, sans-serif'
   },
   lastMessage: {
     paddingLeft: "50px",
-    lineHeight: "0px"
+    lineHeight: "0px",
+    fontFamily: 'Roboto, sans-serif'
   }
 }
 
