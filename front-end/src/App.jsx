@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ListingsPage from './pages/ListingsPage';
 import CreateListingPage from './pages/CreateListingPage';
+import AdminPortalPage from './pages/AdminPortalPage';
 
 const routes = [
   {
@@ -36,6 +37,10 @@ const routes = [
   {
     path: 'forgot-password',
     element: <ForgotPasswordPage />
+  },
+  {
+    path: '/admin-portal',
+    element: <AdminPortalPage />
   }
 ];
 
