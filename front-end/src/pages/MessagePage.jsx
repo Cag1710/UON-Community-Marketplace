@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Recieving from "../components/Recieving";
 import Sending from "../components/Sending";
 import ProfileIcon from "../assets/profile.svg"
+import MessageListing from "../components/MessageListing";
 
 export default function MessagePage() {
     
@@ -35,7 +36,7 @@ export default function MessagePage() {
                         <Sending />
                     </div>
                     <div style={styles.right}>
-                            
+                        <MessageListing />
                     </div>
                 </div>
             </div> 
@@ -80,7 +81,8 @@ const styles = {
         backgroundColor: "white",
         width: "32%",
         height: "100%",
-        borderTopLeftRadius: "10px"
+        borderTopLeftRadius: "10px",
+        overflowY: "auto"
     },
     profileContainer: {
         padding: "10px",
