@@ -22,6 +22,7 @@ export default function MessagePage() {
                     <div style={styles.center}>
                         <div style={styles.profileContainer}>
                             <img src={ProfileIcon} alt="Profile Icon" style={styles.profileIcon} />
+                            <p style={styles.user}>User</p>
                         </div>
 
                         <div style={styles.chatContent}>
@@ -137,6 +138,12 @@ const styles = {
         maxWidth: "70%",
         wordBreak: "break-word",
         fontFamily: 'Roboto, sans-serif'
+    },
+    user: {
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: "bold",
+        padding: "0px",
+        margin: "5px"
     }
 }
 

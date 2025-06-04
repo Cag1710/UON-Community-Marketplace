@@ -16,6 +16,7 @@ const styles = {
         padding: "10px",
         width: "100%",
         boxSizing: "border-box",
+        textAlign: "center"
     },
     input: {
         width: "95%",
