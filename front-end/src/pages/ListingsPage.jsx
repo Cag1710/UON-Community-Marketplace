@@ -1,14 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 
+const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
+
 function ListingsPage() {
   const [listings, setListings] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/listings')
       .then(res => res.json())
       .then(data => setListings(data));
   }, []);
+
+  // Handle checkbox changes
+  const handleCategoryChange = (category) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Filter 
+  const filteredListings = selectedCategories.length === 0
+    ? listings
+    : listings.filter(listing => selectedCategories.includes(listing.category));
+
+  const handleBuy = async (id) => {
+    await fetch(`http://localhost:8000/api/listings/${id}`, {
+      method: 'DELETE',
+    });
+    setListings(listings => listings.filter(listing => listing._id !== id));
+  };
 
   return (
     <>
@@ -27,11 +51,18 @@ function ListingsPage() {
           <div>
             <strong style={{ textDecoration: 'underline' }}>Categories</strong>
             <ul style={{ listStyle: 'none', padding: 0, marginTop: 12 }}>
-              <li><label><input type="checkbox" /> Textbook</label></li>
-              <li><label><input type="checkbox" /> Electronic</label></li>
-              <li><label><input type="checkbox" /> Furniture</label></li>
-              <li><label><input type="checkbox" /> Clothing</label></li>
-              <li><label><input type="checkbox" /> Other</label></li>
+              {CATEGORIES.map(category => (
+                <li key={category}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={() => handleCategoryChange(category)}
+                    />{' '}
+                    {category}
+                  </label>
+                </li>
+              ))}
             </ul>
           </div>
         </aside>
@@ -44,7 +75,7 @@ function ListingsPage() {
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 32,
           }}>
-            {listings.map((listing, i) => (
+            {filteredListings.map((listing, i) => (
               <div key={listing._id || i} style={{
                 background: '#d3d3d3',
                 borderRadius: 24,
@@ -73,6 +104,21 @@ function ListingsPage() {
                   </div>
                   <div>{listing.title}</div>
                   <div>{listing.description}</div>
+                  <button
+                    style={{
+                      marginTop: 16,
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      border: 'none',
+                      background: '#4A72A4',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                    onClick={() => handleBuy(listing._id)}
+                  >
+                    Buy
+                  </button>
                 </div>
               </div>
             ))}

@@ -66,4 +66,17 @@ app.post('/api/listings', async (req, res) => {
     }
 });
 
+import { ObjectId } from 'mongodb'; // Add this at the top if not present
+
+app.delete('/api/listings/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        await db.collection('listings').deleteOne({ _id: new ObjectId(id) });
+        res.json({ message: 'Listing deleted' });
+    } catch (error) {
+        console.error('Error deleting listing:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 start();
