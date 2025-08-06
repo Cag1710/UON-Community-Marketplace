@@ -13,7 +13,6 @@ function ListingsPage() {
       .then(data => setListings(data));
   }, []);
 
-  // Handle checkbox changes
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -22,7 +21,6 @@ function ListingsPage() {
     );
   };
 
-  // Filter 
   const filteredListings = selectedCategories.length === 0
     ? listings
     : listings.filter(listing => selectedCategories.includes(listing.category));
@@ -80,42 +78,57 @@ function ListingsPage() {
                 background: '#d3d3d3',
                 borderRadius: 24,
                 padding: 24,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                border: '1px solid #e0e0e0',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                minHeight: 180
+                minHeight: 220
               }}>
                 <div style={{
-                  background: '#bbb',
                   width: '100%',
-                  height: 80,
+                  height: 100,
                   borderRadius: 12,
                   marginBottom: 16,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  background: listing.image ? '#fff' : '#bbb',
+                  border: listing.image ? '1px solid #ddd' : 'none',
+                  overflow: 'hidden'
                 }}>
-                  Picture of Item
+                  {listing.image ? (
+                    <img
+                      src={listing.image}
+                      alt={listing.title}
+                      style={{ maxWidth: '100%', maxHeight: 100, objectFit: 'contain', display: 'block' }}
+                    />
+                  ) : (
+                    <span style={{ color: '#666', fontSize: 16 }}>Picture of Item</span>
+                  )}
                 </div>
                 <div style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                    <span>{listing.category}</span>
-                    <span>${listing.price}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: 6 }}>
+                    <span style={{ color: '#4A72A4' }}>{listing.category}</span>
+                    <span style={{ color: '#222' }}>${listing.price}</span>
                   </div>
-                  <div>{listing.title}</div>
-                  <div>{listing.description}</div>
+                  <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>{listing.title}</div>
+                  <div style={{ color: '#444', marginBottom: 8 }}>{listing.description}</div>
                   <button
                     style={{
-                      marginTop: 16,
+                      marginTop: 8,
                       padding: '8px 16px',
                       borderRadius: 8,
                       border: 'none',
                       background: '#4A72A4',
                       color: 'white',
                       cursor: 'pointer',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      transition: 'background 0.2s'
                     }}
                     onClick={() => handleBuy(listing._id)}
+                    onMouseOver={e => e.currentTarget.style.background = '#35547a'}
+                    onMouseOut={e => e.currentTarget.style.background = '#4A72A4'}
                   >
                     Buy
                   </button>
@@ -128,5 +141,4 @@ function ListingsPage() {
     </>
   );
 }
-
 export default ListingsPage;
