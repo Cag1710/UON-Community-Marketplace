@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import { getAuth } from 'firebase/auth';
 
+// Listing for filters
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
 
+// Listings page component
 function ListingsPage() {
   const [listings, setListings] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [notMyListings, setNotMyListings] = useState(false);
 
+  // Get current user ID
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userId = user ? user.uid : null;
+
+    // Gets all the listings from the db
   useEffect(() => {
     fetch('http://localhost:8000/api/listings')
       .then(res => res.json())
       .then(data => setListings(data));
   }, []);
 
+  // Handles the checkbox changes
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -21,10 +32,17 @@ function ListingsPage() {
     );
   };
 
-  const filteredListings = selectedCategories.length === 0
-    ? listings
-    : listings.filter(listing => selectedCategories.includes(listing.category));
+  // Filter listings by category and "not my listings"
+  const filteredListings = listings.filter(listing => {
+    const categoryMatch =
+      selectedCategories.length === 0 ||
+      selectedCategories.includes(listing.category);
+    const notMineMatch =
+      !notMyListings || (userId && listing.userId !== userId);
+    return categoryMatch && notMineMatch;
+  });
 
+    // Buy button that deletes the listing atm
   const handleBuy = async (id) => {
     await fetch(`http://localhost:8000/api/listings/${id}`, {
       method: 'DELETE',
@@ -32,6 +50,7 @@ function ListingsPage() {
     setListings(listings => listings.filter(listing => listing._id !== id));
   };
 
+  // Renders the lisitng page
   return (
     <>
       <Navbar />
@@ -62,6 +81,16 @@ function ListingsPage() {
                 </li>
               ))}
             </ul>
+          </div>
+          <div style={{ marginTop: 24 }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={notMyListings}
+                onChange={() => setNotMyListings(v => !v)}
+              />{' '}
+              Not My Listings
+            </label>
           </div>
         </aside>
 
@@ -141,4 +170,5 @@ function ListingsPage() {
     </>
   );
 }
+
 export default ListingsPage;
