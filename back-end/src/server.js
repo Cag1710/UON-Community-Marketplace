@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '5mb' })); // Allows larger JSON payloads for images
 
 let db;
 
@@ -51,12 +51,13 @@ async function start() {
 app.post('/api/listings', async (req, res) => {
     try {
         console.log('POST /api/listings', req.body); 
-        const { title, price, category, description } = req.body;
+        const { title, price, category, description, image } = req.body; // Add image here
         const result = await db.collection('listings').insertOne({
             title,
             price,
             category,
             description,
+            image, // Save image (base64 string)
             createdAt: new Date()
         });
         res.status(201).json({ message: 'Listing created', id: result.insertedId });

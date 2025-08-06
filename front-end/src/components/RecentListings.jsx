@@ -1,22 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 function RecentListings() {
-  const listings = [
-    { title: 'Textbooks for IT', price: '$30' },
-    { title: 'Bicycle', price: '$150' },
-    { title: 'Desk Lamp', price: '$20' },
-    { title: 'Office Chair', price: '$60' },
-  ];
+  const [listings, setListings] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/listings')
+      .then(res => res.json())
+      .then(data => setListings(data.slice(0, 4))); // Show 4 most recent
+  }, []);
 
   return (
     <section style={styles.container}>
       <h2 style={styles.heading}>Recent Listings</h2>
       <div style={styles.grid}>
         {listings.map((item, index) => (
-          <div key={index} style={styles.card}>
-            <div style={styles.imagePlaceholder}></div>
+          <div key={item._id || index} style={styles.card}>
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.title}
+                style={{ height: '100px', objectFit: 'contain', width: '100%', borderRadius: 4, marginBottom: 10, background: '#fff' }}
+              />
+            ) : (
+              <div style={styles.imagePlaceholder}></div>
+            )}
             <h3 style={styles.title}>{item.title}</h3>
-            <p style={styles.price}>{item.price}</p>
+            <p style={styles.price}>${item.price}</p>
           </div>
         ))}
       </div>
