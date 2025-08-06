@@ -1,16 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 function WelcomeSection() {
-  const userName = 'Maria'; // Replace this later with real user name
+  const [name, setname] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchname = async () => {
+      const auth = getAuth();
+      const db = getFirestore();
+      const user = auth.currentUser;
+
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if(docSnap.exists()) {
+          setname(docSnap.data().firstname);
+        } else {
+          console.warn("No user data found!");
+        }
+      }
+
+      setIsLoading(false);
+    }
+    fetchname();
+  }, []);
 
   return (
     <section style={styles.container}>
       {/* LEFT: Welcome Text + Buttons */}
       <div style={styles.left}>
-        <h1 style={styles.heading}>Welcome back, {userName}!</h1>
+        <h1 style={styles.heading}>Welcome back, {name}!</h1>
         <div style={styles.buttons}>
-          <button style={styles.primaryBtn}>Post a Listing</button>
+          <a href="/create-listing"><button style={styles.primaryBtn}>Post a Listing</button></a>
           <a href="/messages"><button style={styles.secondaryBtn}>View My Messages</button></a>
         </div>
       </div>
