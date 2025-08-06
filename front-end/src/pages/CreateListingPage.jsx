@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { getAuth } from 'firebase/auth'; // gets a user id to assing to the listing
 
 function CreateListingPage() {
   const [title, setTitle] = useState('');
@@ -21,15 +22,28 @@ function CreateListingPage() {
     reader.readAsDataURL(file);
   };
 
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userId = user ? user.uid : null;
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    await fetch('http://localhost:8000/api/listings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, price, category, description, image }),
-    });
-    navigate('/listings');
-  };
+  e.preventDefault();
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const userId = user ? user.uid : null;
+
+  if (!userId) {
+    alert('You must be logged in to create a listing.');
+    return;
+  }
+
+  await fetch('http://localhost:8000/api/listings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, price, category, description, image, userId }),
+  });
+  navigate('/listings');
+};
 
   return (
     <>

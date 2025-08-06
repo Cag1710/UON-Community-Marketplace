@@ -51,13 +51,14 @@ async function start() {
 app.post('/api/listings', async (req, res) => {
     try {
         console.log('POST /api/listings', req.body); 
-        const { title, price, category, description, image } = req.body; // Add image here
+        const { title, price, category, description, image, userId } = req.body; // <-- Add userId here
         const result = await db.collection('listings').insertOne({
             title,
             price,
             category,
             description,
-            image, // Save image (base64 string)
+            image,
+            userId, 
             createdAt: new Date()
         });
         res.status(201).json({ message: 'Listing created', id: result.insertedId });
