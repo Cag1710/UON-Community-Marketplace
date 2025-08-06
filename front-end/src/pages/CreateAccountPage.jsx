@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import ProfileIcon from '../assets/profile.svg';
 import UoNLogo from '../assets/uonlogo.svg';
+import { getFirestore, doc, setDoc } from "firebase/firestore"
 
 export default function CreateAccountPage() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,19 @@ export default function CreateAccountPage() {
       return;
     }
     try {
-      await createUserWithEmailAndPassword(getAuth(), email, password);
+      const auth = getAuth();
+      const db = getFirestore();
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        firstname,
+        lastname,
+        username,
+        email,
+        createdAt: new Date()
+      });
+
       navigate('/');
     } catch (e) {
       setError(e.message);
