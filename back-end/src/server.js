@@ -1,5 +1,5 @@
 import express from 'express';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'; // Import ObjectId here only once
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -51,7 +51,7 @@ async function start() {
 app.post('/api/listings', async (req, res) => {
     try {
         console.log('POST /api/listings', req.body); 
-        const { title, price, category, description, image, userId } = req.body; // <-- Add userId here
+        const { title, price, category, description, image, userId } = req.body;
         const result = await db.collection('listings').insertOne({
             title,
             price,
@@ -68,8 +68,6 @@ app.post('/api/listings', async (req, res) => {
     }
 });
 
-import { ObjectId } from 'mongodb'; // Add this at the top if not present
-
 app.delete('/api/listings/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -79,6 +77,17 @@ app.delete('/api/listings/:id', async (req, res) => {
         console.error('Error deleting listing:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+app.get('/api/listings/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
+    if (!listing) return res.status(404).json({ error: 'Listing not found' });
+    res.json(listing);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 start();
