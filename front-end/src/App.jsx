@@ -8,6 +8,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ListingsPage from './pages/ListingsPage';
 import CreateListingPage from './pages/CreateListingPage';
 import AdminPortalPage from './pages/AdminPortalPage';
+import ListingDetailPage from './pages/ListingDetailPage';
 
 const routes = [
   {
@@ -41,6 +42,10 @@ const routes = [
   {
     path: '/admin-portal',
     element: <AdminPortalPage />
+  },
+  {
+    path: '/listing/:id', 
+    element: <ListingDetailPage />
   }
 ];
 
