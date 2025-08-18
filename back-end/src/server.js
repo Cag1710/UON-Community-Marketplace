@@ -2,6 +2,8 @@ import express from 'express';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import admin from './firebaseAdmin.js';
+import { ObjectId } from 'mongodb';
 
 dotenv.config();
 
@@ -68,8 +70,6 @@ app.post('/api/listings', async (req, res) => {
     }
 });
 
-import { ObjectId } from 'mongodb'; // Add this at the top if not present
-
 app.delete('/api/listings/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -80,5 +80,33 @@ app.delete('/api/listings/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+async function requireAuth(req, res, next) {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      if (!token) return res.status(401).json({ error: 'Missing token' });
+      req.user = await admin.auth().verifyIdToken(token);
+      next();
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  }
+  function requireAdmin(req, res, next) {
+    if (req.user?.admin === true) return next();
+    return res.status(403).json({ error: 'Admins only' });
+  }
+  
+  app.post('/api/admin/set-role', requireAuth, requireAdmin, async (req, res) => {
+    const { uid, admin: makeAdmin } = req.body || {};
+    if (typeof uid !== 'string' || typeof makeAdmin !== 'boolean') {
+      return res.status(400).json({ error: 'uid and admin (boolean) required' });
+    }
+  
+    await admin.auth().setCustomUserClaims(uid, { admin: makeAdmin });
+    await admin.firestore().doc(`users/${uid}`).set({ isAdmin: makeAdmin }, { merge: true }); // optional mirror
+  
+    res.json({ ok: true });
+  });
 
 start();
