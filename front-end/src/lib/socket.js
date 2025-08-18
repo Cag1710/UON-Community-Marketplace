@@ -3,57 +3,57 @@ import { io } from "socket.io-client";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
-// Singleton socket (one connection for the whole app)
-let socket;
+let socket = null;
+let joinedUserId = null;
 
-/**
- * Connect as a specific user and join their private room.
- * Safe to call multiple times; it will reuse the same socket.
- */
 export function connectAs(userId) {
-  if (!userId) return;
+  if (!userId) return null;
 
   if (!socket) {
     socket = io(SOCKET_URL, {
       withCredentials: true,
+      transports: ["websocket"],
       autoConnect: false,
-      transports: ["websocket", "polling"],
     });
 
-    // On reconnect (network hiccups), re-join the user room
-    socket.on("connect", () => {
-      socket.emit("join", String(userId));
+    socket.on("connect_error", (e) => {
+      console.warn("[socket] connect_error:", e?.message || e);
     });
   }
 
-  if (!socket.connected) {
-    socket.connect();
-  } else {
-    // already connected; ensure we're joined
-    socket.emit("join", String(userId));
+  if (!socket.connected) socket.connect();
+
+  if (joinedUserId !== String(userId)) {
+    joinedUserId = String(userId);
+    socket.emit("join", joinedUserId);
   }
 
   return socket;
 }
 
-export function onNewMessage(handler) {
-  if (!socket) return;
-  socket.on("newMessage", handler);
+export function on(event, cb) {
+  socket?.on(event, cb);
+}
+export function off(event, cb) {
+  socket?.off(event, cb);
 }
 
-export function offNewMessage(handler) {
-  if (!socket) return;
-  socket.off("newMessage", handler);
+export function onNewMessage(cb) {
+  on("newMessage", cb);
+}
+export function offNewMessage(cb) {
+  off("newMessage", cb);
 }
 
-export function sendMessage({ conversationId, senderId, recipientId, text }) {
-  if (!socket) return;
-  socket.emit("sendMessage", { conversationId, senderId, recipientId, text });
+export function sendMessage(payload) {
+  socket?.emit("sendMessage", payload);
 }
 
-export function disconnectSocket() {
-  if (socket) {
-    socket.disconnect();
-    socket = undefined;
-  }
-}
+export default {
+  connectAs,
+  onNewMessage,
+  offNewMessage,
+  sendMessage,
+  on,
+  off,
+};
