@@ -2,51 +2,51 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Listing for filters
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
 
-// Listings page component
 function ListingsPage() {
   const [listings, setListings] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [notMyListings, setNotMyListings] = useState(false);
   const [userMap, setUserMap] = useState({}); // userId -> user info
 
-  // Get current user ID
+  // Current user
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user ? user.uid : null;
 
-  // Gets all the listings from the db and fetches user info for each listing
+  const navigate = useNavigate();
+
+  // Fetch listings + seller info
   useEffect(() => {
-    fetch('http://localhost:8000/api/listings')
-      .then(res => res.json())
-      .then(async data => {
-        setListings(data);
+    (async () => {
+      const res = await fetch('http://localhost:8000/api/listings');
+      const data = await res.json();
+      setListings(data);
 
-        // Get unique userIds
-        const uniqueUserIds = [...new Set(data.map(l => l.userId).filter(Boolean))];
-        const db = getFirestore();
-        const userMapTemp = {};
+      // Build user map for "Posted by ..."
+      const uniqueUserIds = [...new Set(data.map(l => l.userId).filter(Boolean))];
+      const db = getFirestore();
+      const map = {};
 
-        // Fetch user info for each userId
-        await Promise.all(uniqueUserIds.map(async uid => {
+      await Promise.all(
+        uniqueUserIds.map(async uid => {
           try {
-            const userDoc = await getDoc(doc(db, 'users', uid));
-            if (userDoc.exists()) {
-              userMapTemp[uid] = userDoc.data();
-            }
-          } catch (e) {
-            // Ignore errors, just don't show user info
+            const snap = await getDoc(doc(db, 'users', uid));
+            if (snap.exists()) map[uid] = snap.data();
+          } catch {
+            /* ignore */
           }
-        }));
-        setUserMap(userMapTemp);
-      });
+        })
+      );
+      setUserMap(map);
+    })();
   }, []);
 
-  // Handles the checkbox changes
+  // Filters
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -55,7 +55,6 @@ function ListingsPage() {
     );
   };
 
-  // Filter listings by category and "not my listings"
   const filteredListings = listings.filter(listing => {
     const categoryMatch =
       selectedCategories.length === 0 ||
@@ -65,15 +64,23 @@ function ListingsPage() {
     return categoryMatch && notMineMatch;
   });
 
-  // Buy button that deletes the listing atm
-  const handleBuy = async (id) => {
-    await fetch(`http://localhost:8000/api/listings/${id}`, {
-      method: 'DELETE',
-    });
-    setListings(listings => listings.filter(listing => listing._id !== id));
+  // Message Seller (no delete)
+  const handleMessage = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/listings/${id}`);
+      if (!res.ok) {
+        alert("Couldn't open chat for this listing.");
+        return;
+      }
+      const listing = await res.json();
+      const sellerId = listing.userId;
+      navigate(`/messages?listingId=${id}&sellerId=${sellerId}`);
+    } catch (e) {
+      console.error(e);
+      alert('Something went wrong opening the chat.');
+    }
   };
 
-  // Renders the listing page
   return (
     <>
       <Navbar />
@@ -192,14 +199,11 @@ function ListingsPage() {
                           fontWeight: 'bold',
                           transition: 'background 0.2s'
                         }}
-                        onClick={e => {
-                          e.preventDefault(); // Prevent navigation when clicking Buy
-                          handleBuy(listing._id);
-                        }}
+                        onClick={(e) => { e.preventDefault(); handleMessage(listing._id); }}
                         onMouseOver={e => e.currentTarget.style.background = '#35547a'}
                         onMouseOut={e => e.currentTarget.style.background = '#4A72A4'}
                       >
-                        Buy
+                        Message Seller
                       </button>
                     </div>
                   </div>
