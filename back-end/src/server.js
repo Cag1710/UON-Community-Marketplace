@@ -1,9 +1,8 @@
 import express from 'express';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'; // Import ObjectId here only once
 import dotenv from 'dotenv';
 import cors from 'cors';
 import admin from './firebaseAdmin.js';
-import { ObjectId } from 'mongodb';
 
 dotenv.config();
 
@@ -53,7 +52,7 @@ async function start() {
 app.post('/api/listings', async (req, res) => {
     try {
         console.log('POST /api/listings', req.body); 
-        const { title, price, category, description, image, userId } = req.body; // <-- Add userId here
+        const { title, price, category, description, image, userId } = req.body;
         const result = await db.collection('listings').insertOne({
             title,
             price,
@@ -108,5 +107,17 @@ async function requireAuth(req, res, next) {
   
     res.json({ ok: true });
   });
+
+start();
+app.get('/api/listings/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
+    if (!listing) return res.status(404).json({ error: 'Listing not found' });
+    res.json(listing);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 start();
