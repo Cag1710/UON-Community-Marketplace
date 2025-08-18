@@ -3,10 +3,16 @@ import Navbar from "../components/Navbar";
 import AdminListings from "../components/AdminListings";
 import AdminAccounts from "../components/AdminAccounts";
 import AdminReportedContent from "../components/AdminReportedContent";
+import useUser from "../useUser";
 
 
 export default function AdminPortalPage() {
     const [activeTab, setActiveTab] = useState("listings");
+    const { user, isAdmin, isLoading } = useUser();
+
+    if (isLoading) return <p>Loading...</p>;
+    if (!user) return <p>You must be logged in.</p>;
+    if (!isAdmin) return <p>🚫 Access denied: Admins only.</p>;
 
     const renderContent = () => {
         switch(activeTab){
