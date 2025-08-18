@@ -17,6 +17,12 @@ export default function LoginPage() {
         e.preventDefault();
         try {
             await signInWithEmailAndPassword(getAuth(), email, password);
+            const user = getAuth().currentUser;
+            if (user) {
+                await user.getIdToken(true); // refresh token
+                const tokenResult = await user.getIdTokenResult();
+                console.log("Custom claims:", tokenResult.claims); // <-- should show { admin: true }
+            }
             navigate('/');
         } catch (e) {
             setError(e.message);
