@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // ⬅️ added
 
 // Listing for filters
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
@@ -16,7 +17,9 @@ function ListingsPage() {
   const user = auth.currentUser;
   const userId = user ? user.uid : null;
 
-    // Gets all the listings from the db
+  const navigate = useNavigate(); // ⬅️ added
+
+  // Gets all the listings from the db
   useEffect(() => {
     fetch('http://localhost:8000/api/listings')
       .then(res => res.json())
@@ -42,12 +45,22 @@ function ListingsPage() {
     return categoryMatch && notMineMatch;
   });
 
-    // Buy button that deletes the listing atm
-  const handleBuy = async (id) => {
-    await fetch(`http://localhost:8000/api/listings/${id}`, {
-      method: 'DELETE',
-    });
-    setListings(listings => listings.filter(listing => listing._id !== id));
+  // ⬇️ NEW: "Message Seller" action (no delete)
+  const handleMessage = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/listings/${id}`);
+      if (!res.ok) {
+        alert("Couldn't open chat for this listing.");
+        return;
+      }
+      const listing = await res.json();
+      const sellerId = listing.userId;
+      // route to messaging page with listing & seller
+      navigate(`/messages?listingId=${id}&sellerId=${sellerId}`);
+    } catch (e) {
+      console.error(e);
+      alert("Something went wrong opening the chat.");
+    }
   };
 
   // Renders the lisitng page
@@ -155,11 +168,11 @@ function ListingsPage() {
                       fontWeight: 'bold',
                       transition: 'background 0.2s'
                     }}
-                    onClick={() => handleBuy(listing._id)}
+                    onClick={() => handleMessage(listing._id)} // ⬅️ was handleBuy
                     onMouseOver={e => e.currentTarget.style.background = '#35547a'}
                     onMouseOut={e => e.currentTarget.style.background = '#4A72A4'}
                   >
-                    Buy
+                    Message Seller {/* ⬅️ was "Buy" */}
                   </button>
                 </div>
               </div>
