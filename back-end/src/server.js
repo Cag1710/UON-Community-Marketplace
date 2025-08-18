@@ -108,16 +108,15 @@ async function requireAuth(req, res, next) {
     res.json({ ok: true });
   });
 
-start();
-app.get('/api/listings/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
-    if (!listing) return res.status(404).json({ error: 'Listing not found' });
-    res.json(listing);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  app.get('/api/listings/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
+      if (!listing) return res.status(404).json({ error: 'Listing not found' });
+      res.json(listing);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 start();
