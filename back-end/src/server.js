@@ -86,7 +86,7 @@ app.get('/api/listings/:id', async (req, res) => {
 
 app.post('/api/listings', async (req, res) => {
   try {
-    const { title, price, category, description, image, userId } = req.body;
+    const { title, price, category, description, image, userId, location, condition } = req.body;
     const result = await db.collection('listings').insertOne({
       title,
       price,
@@ -94,6 +94,8 @@ app.post('/api/listings', async (req, res) => {
       description,
       image,
       userId,
+      location,
+      condition,
       createdAt: new Date(),
     });
     res.status(201).json({ message: 'Listing created', id: result.insertedId });

@@ -72,8 +72,15 @@ function ListingDetailPage() {
         }}>
           <h2 style={{ fontSize: 32, fontWeight: 800, color: '#222', marginBottom: 8 }}>{listing.title}</h2>
           <div style={{ fontSize: 24, color: '#4A72A4', fontWeight: 700, marginBottom: 16 }}>${listing.price}</div>
-          <div style={{ marginBottom: 16, color: '#555' }}>
+          <div style={{ marginBottom: 8, color: '#555' }}>
             <b>Category:</b> {listing.category}
+          </div>
+          {/* Location and Condition */}
+          <div style={{ marginBottom: 8, color: '#555' }}>
+            <b>Location:</b> {listing.location || <span style={{ color: '#aaa' }}>N/A</span>}
+          </div>
+          <div style={{ marginBottom: 16, color: '#555' }}>
+            <b>Condition:</b> {listing.condition || <span style={{ color: '#aaa' }}>N/A</span>}
           </div>
           <div style={{ marginBottom: 24, color: '#444', fontSize: 16 }}>
             {listing.description}
@@ -105,5 +112,4 @@ function ListingDetailPage() {
     </>
   );
 }
-
 export default ListingDetailPage;

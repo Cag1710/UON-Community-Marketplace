@@ -84,7 +84,7 @@ function ListingsPage() {
   return (
     <>
       <Navbar />
-      <div style={{ display: 'flex', padding: '32px', background: '#f9f9f9', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', padding: '32px', background: '#f9f9f9', minHeight: '100vh', fontFamily: 'inherit' }}>
         {/* Sidebar */}
         <aside style={{
           minWidth: 240,
@@ -138,10 +138,10 @@ function ListingsPage() {
                 <Link
                   to={`/listing/${listing._id}`}
                   key={listing._id || i}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'none', color: 'inherit', fontFamily: 'inherit' }}
                 >
                   <div style={{
-                    background: '#d3d3d3',
+                    background: '#fff',
                     borderRadius: 24,
                     padding: 24,
                     boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
@@ -150,7 +150,8 @@ function ListingsPage() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     minHeight: 220,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    fontFamily: 'inherit'
                   }}>
                     <div style={{
                       width: '100%',
@@ -162,26 +163,34 @@ function ListingsPage() {
                       justifyContent: 'center',
                       background: listing.image ? '#fff' : '#bbb',
                       border: listing.image ? '1px solid #ddd' : 'none',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      fontFamily: 'inherit'
                     }}>
                       {listing.image ? (
                         <img
                           src={listing.image}
                           alt={listing.title}
-                          style={{ maxWidth: '100%', maxHeight: 100, objectFit: 'contain', display: 'block' }}
+                          style={{ maxWidth: '100%', maxHeight: 100, objectFit: 'contain', display: 'block', fontFamily: 'inherit' }}
                         />
                       ) : (
-                        <span style={{ color: '#666', fontSize: 16 }}>Picture of Item</span>
+                        <span style={{ color: '#666', fontSize: 16, fontFamily: 'inherit' }}>Picture of Item</span>
                       )}
                     </div>
-                    <div style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: 6 }}>
-                        <span style={{ color: '#4A72A4' }}>{listing.category}</span>
-                        <span style={{ color: '#222' }}>${listing.price}</span>
+                    <div style={{ width: '100%', fontFamily: 'inherit' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: 6, fontFamily: 'inherit' }}>
+                        <span style={{ color: '#4A72A4', fontFamily: 'inherit' }}>{listing.category}</span>
+                        <span style={{ color: '#222', fontFamily: 'inherit' }}>${listing.price}</span>
                       </div>
-                      <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>{listing.title}</div>
-                      <div style={{ color: '#444', marginBottom: 8 }}>{listing.description}</div>
-                      <div style={{ color: '#4A72A4', fontSize: 14, marginBottom: 8 }}>
+                      <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4, fontFamily: 'inherit' }}>{listing.title}</div>
+                      <div style={{ color: '#444', marginBottom: 8, fontFamily: 'inherit' }}>{listing.description}</div>
+                      {/* Location and Condition */}
+                      <div style={{ color: '#555', fontSize: 15, marginBottom: 4, fontFamily: 'inherit' }}>
+                        <b>Location:</b> {listing.location || <span style={{ color: '#aaa' }}>N/A</span>}
+                      </div>
+                      <div style={{ color: '#555', fontSize: 15, marginBottom: 8, fontFamily: 'inherit' }}>
+                        <b>Condition:</b> {listing.condition || <span style={{ color: '#aaa' }}>N/A</span>}
+                      </div>
+                      <div style={{ color: '#4A72A4', fontSize: 14, marginBottom: 8, fontFamily: 'inherit' }}>
                         {seller
                           ? <>Posted by <b>{seller.username || seller.email}</b></>
                           : <>Posted by <span style={{ color: '#aaa' }}>Unknown</span></>
@@ -197,7 +206,8 @@ function ListingsPage() {
                           color: 'white',
                           cursor: 'pointer',
                           fontWeight: 'bold',
-                          transition: 'background 0.2s'
+                          transition: 'background 0.2s',
+                          fontFamily: 'inherit'
                         }}
                         onClick={(e) => { e.preventDefault(); handleMessage(listing._id); }}
                         onMouseOver={e => e.currentTarget.style.background = '#35547a'}

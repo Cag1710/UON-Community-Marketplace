@@ -6,7 +6,11 @@ function RecentListings() {
   useEffect(() => {
     fetch('http://localhost:8000/api/listings')
       .then(res => res.json())
-      .then(data => setListings(data.slice(0, 4))); // Show 4 most recent
+      .then(data => {
+        // Show 4 most recent (newest first)
+        const sorted = data.slice().reverse().slice(0, 4);
+        setListings(sorted);
+      });
   }, []);
 
   return (
@@ -47,7 +51,7 @@ const styles = {
     gap: '20px',
     flexWrap: 'wrap',
   },
-  card: {
+    card: {
     width: '200px',
     padding: '20px',
     backgroundColor: 'white',

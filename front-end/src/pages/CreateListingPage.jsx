@@ -9,6 +9,8 @@ function CreateListingPage() {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
+  const [location, setLocation] = useState(''); // NEW
+  const [condition, setCondition] = useState(''); // NEW
   const navigate = useNavigate();
 
   // Convert image file to base64
@@ -36,7 +38,7 @@ function CreateListingPage() {
     await fetch('http://localhost:8000/api/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, price, category, description, image, userId }),
+      body: JSON.stringify({ title, price, category, description, image, userId, location, condition }), // UPDATED
     });
     navigate('/listings');
   };
@@ -115,6 +117,50 @@ function CreateListingPage() {
                   required
                 />
               </div>
+            </div>
+            {/* Location Field */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontWeight: 600, color: '#4A72A4' }}>Location</label>
+              <input
+                type="text"
+                value={location}
+                onChange={e => setLocation(e.target.value)}
+                placeholder="e.g. Callaghan, Newcastle"
+                style={{
+                  width: '100%',
+                  marginBottom: 12,
+                  padding: 10,
+                  borderRadius: 10,
+                  border: '1.5px solid #bfcbe2',
+                  fontSize: 16,
+                  background: '#f7fafd'
+                }}
+                required
+              />
+            </div>
+            {/* Condition Field */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontWeight: 600, color: '#4A72A4' }}>Condition</label>
+              <select
+                value={condition}
+                onChange={e => setCondition(e.target.value)}
+                style={{
+                  width: '100%',
+                  marginBottom: 12,
+                  padding: 10,
+                  borderRadius: 10,
+                  border: '1.5px solid #bfcbe2',
+                  fontSize: 16,
+                  background: '#f7fafd'
+                }}
+                required
+              >
+                <option value="">Select Condition</option>
+                <option value="New">New</option>
+                <option value="Near new">Near new</option>
+                <option value="Used">Used</option>
+                <option value="Damaged">Damaged</option>
+              </select>
             </div>
             <div style={{ marginBottom: 20 }}>
               <label style={{ fontWeight: 600, color: '#4A72A4' }}>Category</label>
