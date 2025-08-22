@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from "react-router-dom";
+
 
 function Footer() {
   return (
@@ -7,7 +9,8 @@ function Footer() {
       <div style={styles.links}>
         <a href="#" style={styles.link}>About</a>
         <a href="#" style={styles.link}>Contact Us</a>
-        <a href="#" style={styles.link}>Privacy Policy</a>
+        <Link to="/privacy-policy" style={styles.link}>Privacy Policy</Link>
+
       </div>
     </footer>
   );

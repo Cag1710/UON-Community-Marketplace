@@ -9,6 +9,7 @@ import ListingsPage from './pages/ListingsPage';
 import CreateListingPage from './pages/CreateListingPage';
 import AdminPortalPage from './pages/AdminPortalPage';
 import ListingDetailPage from './pages/ListingDetailPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const routes = [
   {
@@ -46,7 +47,12 @@ const routes = [
   {
     path: '/listing/:id', 
     element: <ListingDetailPage />
-  }
+  },
+  {
+  path: '/privacy-policy',
+  element: <PrivacyPolicy />
+  },
+
 ];
 
 
