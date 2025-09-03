@@ -7,7 +7,7 @@ function Footer() {
     <footer style={styles.footer}>
       <p style={styles.text}>© 2025 UON Community Marketplace</p>
       <div style={styles.links}>
-        <a href="#" style={styles.link}>About</a>
+        <Link to="/about-us" style={styles.link}>About</Link>
         <a href="#" style={styles.link}>Contact Us</a>
         <Link to="/privacy-policy" style={styles.link}>Privacy Policy</Link>
 
