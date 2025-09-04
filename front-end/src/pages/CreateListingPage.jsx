@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { getAuth } from 'firebase/auth';
+import Footer from '../components/Footer';
 
 function CreateListingPage() {
   const [title, setTitle] = useState('');
@@ -64,7 +65,9 @@ function CreateListingPage() {
             border: '1px solid #e0e0e0',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center'
+            alignItems: 'center',
+            flex: 1,
+            fontFamily: 'inherit',
           }}
         >
           <h1 style={{
@@ -273,6 +276,7 @@ function CreateListingPage() {
             </div>
           </form>
         </div>
+        <Footer />
       </div>
     </>
   );
