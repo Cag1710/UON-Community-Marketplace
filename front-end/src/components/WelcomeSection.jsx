@@ -39,11 +39,6 @@ function WelcomeSection() {
         </div>
       </div>
 
-      {/* ✅ Sign Out Button just under the navbar */}
-      <div style={styles.signOutContainer}>
-        <button style={styles.signOut} onClick={() => signOut(getAuth())}>Sign Out</button>
-      </div>
-
       {/* RIGHT: Waving Illustration */}
       <div style={styles.right}>
         <img

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ProfileIcon from "../assets/profile.svg"
 import UoNLogo from "../assets/uonlogo.svg";
 import useUser from '../useUser';
+import UserMenu from "./UserMenu"
 
 function Navbar() {
 
@@ -25,9 +26,7 @@ function Navbar() {
       </div>
 
       <div style={styles.profile}>
-        {!isLoading && user && (
-          <img src={ProfileIcon} alt="Profile Icon" style={styles.profileIcon} />
-        )}
+        {!isLoading && user && <UserMenu />}
       </div>
     </nav>
   );
