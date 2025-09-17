@@ -11,7 +11,7 @@ import AdminPortalPage from './pages/AdminPortalPage';
 import ListingDetailPage from './pages/ListingDetailPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUsPage from './pages/AboutUsPage';
-import ContactUsPage from './pages/ContactUsPage';
+import ContactUsPage from './pages/ContactUsPage.jsx';
 
 
 const routes = [
