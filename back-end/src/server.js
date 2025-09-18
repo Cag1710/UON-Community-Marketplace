@@ -1,18 +1,17 @@
-// server.js (MERGED)
 import express from 'express';
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import admin from './firebaseAdmin.js'; // from the second version
+import admin from './firebaseAdmin.js';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
 
-// Socket.io with Vite dev origin
 const io = new Server(httpServer, {
   cors: {
     origin: 'http://localhost:5173',
@@ -21,7 +20,6 @@ const io = new Server(httpServer, {
   },
 });
 
-// CORS + JSON
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
@@ -44,7 +42,7 @@ async function connectToDB() {
   db = client.db('UON-Community-Marketplace');
 }
 
-// ---- Auth helpers (from second version) ----
+// ---- Auth helpers ----
 async function requireAuth(req, res, next) {
   try {
     const authHeader = req.headers.authorization || '';
@@ -86,13 +84,13 @@ app.get('/api/listings/:id', async (req, res) => {
 
 app.post('/api/listings', async (req, res) => {
   try {
-    const { title, price, category, description, image, userId, location, condition } = req.body;
+    const { title, price, category, description, images, userId, location, condition } = req.body;
     const result = await db.collection('listings').insertOne({
       title,
       price,
       category,
       description,
-      image,
+      images,
       userId,
       location,
       condition,
@@ -105,7 +103,6 @@ app.post('/api/listings', async (req, res) => {
   }
 });
 
-// from the second version
 app.delete('/api/listings/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -117,8 +114,35 @@ app.delete('/api/listings/:id', async (req, res) => {
   }
 });
 
+// ===================== CONTACT US EMAIL =====================
+app.post('/api/contact', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  // Configure your SMTP transport
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'noah.cook170902@gmail.com',
+      pass: process.env.CONTACT_EMAIL_PASS // Use an App Password, not your main password!
+    }
+  });
+
+  try {
+    await transporter.sendMail({
+      from: email,
+      to: 'noah.cook170902@gmail.com',
+      subject: `Contact Us Message from ${name}`,
+      text: message,
+      replyTo: email
+    });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('Error sending contact email:', err);
+    res.status(500).json({ error: 'Failed to send email.' });
+  }
+});
+
 // ===================== ADMIN =====================
-// from the second version
 app.post('/api/admin/set-role', requireAuth, requireAdmin, async (req, res) => {
   const { uid, admin: makeAdmin } = req.body || {};
   if (typeof uid !== 'string' || typeof makeAdmin !== 'boolean') {
@@ -179,7 +203,6 @@ app.post('/api/conversations', async (req, res) => {
   }
 });
 
-/* Delete conversation + its messages, emit to both participants */
 app.delete('/api/conversations/:conversationId', async (req, res) => {
   try {
     const conversationId = req.params.conversationId;
@@ -237,7 +260,6 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-/* Unsend (delete) a single message + emit to both users */
 app.delete('/api/messages/:messageId', async (req, res) => {
   try {
     const messageId = req.params.messageId;

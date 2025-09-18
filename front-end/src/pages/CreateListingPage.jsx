@@ -9,20 +9,22 @@ function CreateListingPage() {
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState('');
-  const [location, setLocation] = useState(''); // NEW
-  const [condition, setCondition] = useState(''); // NEW
+  const [images, setImages] = useState([]); // Now an array
+  const [location, setLocation] = useState('');
+  const [condition, setCondition] = useState('');
   const navigate = useNavigate();
 
-  // Convert image file to base64
+  // Convert multiple image files to base64
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    const readers = files.map(file => {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    });
+    Promise.all(readers).then(imgs => setImages(imgs));
   };
 
   const handleSubmit = async (e) => {
@@ -39,7 +41,7 @@ function CreateListingPage() {
     await fetch('http://localhost:8000/api/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, price, category, description, image, userId, location, condition }), // UPDATED
+      body: JSON.stringify({ title, price, category, description, images, userId, location, condition }),
     });
     navigate('/listings');
   };
@@ -52,6 +54,8 @@ function CreateListingPage() {
           background: '#f9f9f9',
           minHeight: '100vh',
           paddingTop: 40,
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         <div
@@ -68,6 +72,7 @@ function CreateListingPage() {
             alignItems: 'center',
             flex: 1,
             fontFamily: 'inherit',
+            width: '100%',
           }}
         >
           <h1 style={{
@@ -189,6 +194,39 @@ function CreateListingPage() {
                 <option value="Other">Other</option>
               </select>
             </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ fontWeight: 600, color: '#4A72A4' }}>Images</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                style={{
+                  marginBottom: 12,
+                  display: 'block',
+                  fontSize: 15
+                }}
+              />
+              {images.length > 0 && (
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {images.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Preview ${idx + 1}`}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: 'cover',
+                        borderRadius: 8,
+                        border: '1.5px solid #bfcbe2',
+                        background: '#fff'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
             <div style={{ marginBottom: 20 }}>
               <label style={{ fontWeight: 600, color: '#4A72A4' }}>Description</label>
               <textarea
@@ -208,34 +246,6 @@ function CreateListingPage() {
                 }}
                 required
               />
-            </div>
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ fontWeight: 600, color: '#4A72A4' }}>Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{
-                  marginBottom: 12,
-                  display: 'block',
-                  fontSize: 15
-                }}
-              />
-              {image && (
-                <img
-                  src={image}
-                  alt="Preview"
-                  style={{
-                    width: '100%',
-                    maxHeight: 220,
-                    objectFit: 'contain',
-                    borderRadius: 14,
-                    border: '1.5px solid #bfcbe2',
-                    marginBottom: 8,
-                    background: '#fff'
-                  }}
-                />
-              )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
               <button

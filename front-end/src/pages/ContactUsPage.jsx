@@ -7,11 +7,22 @@ function ContactUsPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can add logic here to send the message to your backend or email service
-    setSubmitted(true);
+    setError('');
+    try {
+      const res = await fetch('http://localhost:8000/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (!res.ok) throw new Error('Failed to send message.');
+      setSubmitted(true);
+    } catch (err) {
+      setError('There was a problem sending your message. Please try again later.');
+    }
   };
 
   return (
@@ -88,6 +99,11 @@ function ContactUsPage() {
                   resize: 'vertical'
                 }}
               />
+              {error && (
+                <div style={{ color: 'red', fontWeight: 500, marginBottom: 8 }}>
+                  {error}
+                </div>
+              )}
               <button
                 type="submit"
                 style={{

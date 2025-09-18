@@ -5,30 +5,27 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 
-// Listing for filters
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
 
 function ListingsPage() {
   const [listings, setListings] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [notMyListings, setNotMyListings] = useState(false);
-  const [userMap, setUserMap] = useState({}); // userId -> user info
+  const [userMap, setUserMap] = useState({});
+  const [imageIndexes, setImageIndexes] = useState({});
 
-  // Current user
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user ? user.uid : null;
 
   const navigate = useNavigate();
 
-  // Fetch listings + seller info
   useEffect(() => {
     (async () => {
       const res = await fetch('http://localhost:8000/api/listings');
       const data = await res.json();
       setListings(data);
 
-      // Build user map for "Posted by ..."
       const uniqueUserIds = [...new Set(data.map(l => l.userId).filter(Boolean))];
       const db = getFirestore();
       const map = {};
@@ -47,7 +44,6 @@ function ListingsPage() {
     })();
   }, []);
 
-  // Filters
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev =>
       prev.includes(category)
@@ -65,7 +61,6 @@ function ListingsPage() {
     return categoryMatch && notMineMatch;
   });
 
-  // Message Seller (no delete)
   const handleMessage = async (id) => {
     try {
       const res = await fetch(`http://localhost:8000/api/listings/${id}`);
@@ -94,16 +89,28 @@ function ListingsPage() {
           fontFamily: 'inherit'
         }}
       >
-        <div style={{ display: 'flex', flex: 1, padding: 32 }}>
+        <div
+          className="listings-main"
+          style={{
+            display: 'flex',
+            flex: 1,
+            padding: 32,
+            transition: 'all 0.2s'
+          }}
+        >
           {/* Sidebar */}
-          <aside style={{
-            minWidth: 240,
-            background: '#f2f2f2',
-            borderRadius: 20,
-            padding: 24,
-            marginRight: 32,
-            height: 'fit-content'
-          }}>
+          <aside
+            className="listings-sidebar"
+            style={{
+              minWidth: 240,
+              background: '#f2f2f2',
+              borderRadius: 20,
+              padding: 24,
+              marginRight: 32,
+              height: 'fit-content',
+              transition: 'all 0.2s'
+            }}
+          >
             <h2 style={{ marginTop: 0 }}>Filters</h2>
             <div>
               <strong style={{ textDecoration: 'underline' }}>Categories</strong>
@@ -137,13 +144,36 @@ function ListingsPage() {
           {/* Body (Listings) */}
           <main style={{ flex: 1 }}>
             <h1 style={{ textAlign: 'center', marginBottom: 32 }}>Items</h1>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 32,
-            }}>
+            <div
+              className="listings-grid"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 32,
+                transition: 'all 0.2s'
+              }}
+            >
               {filteredListings.map((listing, i) => {
                 const seller = userMap[listing.userId];
+                const images = listing.images && listing.images.length > 0 ? listing.images : (listing.image ? [listing.image] : []);
+                const currentIdx = imageIndexes[listing._id] || 0;
+
+                const handlePrev = (e) => {
+                  e.preventDefault();
+                  setImageIndexes(idx => ({
+                    ...idx,
+                    [listing._id]: (currentIdx - 1 + images.length) % images.length
+                  }));
+                };
+
+                const handleNext = (e) => {
+                  e.preventDefault();
+                  setImageIndexes(idx => ({
+                    ...idx,
+                    [listing._id]: (currentIdx + 1) % images.length
+                  }));
+                };
+
                 return (
                   <Link
                     to={`/listing/${listing._id}`}
@@ -161,27 +191,82 @@ function ListingsPage() {
                       alignItems: 'center',
                       minHeight: 220,
                       cursor: 'pointer',
-                      fontFamily: 'inherit'
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s'
                     }}>
                       <div style={{
                         width: '100%',
-                        height: 100,
+                        minHeight: 100,
                         borderRadius: 12,
                         marginBottom: 16,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: listing.image ? '#fff' : '#bbb',
-                        border: listing.image ? '1px solid #ddd' : 'none',
+                        background: images.length > 0 ? '#fff' : '#bbb',
+                        border: images.length > 0 ? '1px solid #ddd' : 'none',
                         overflow: 'hidden',
-                        fontFamily: 'inherit'
+                        position: 'relative'
                       }}>
-                        {listing.image ? (
-                          <img
-                            src={listing.image}
-                            alt={listing.title}
-                            style={{ maxWidth: '100%', maxHeight: 100, objectFit: 'contain', display: 'block', fontFamily: 'inherit' }}
-                          />
+                        {images.length > 0 ? (
+                          <>
+                            <img
+                              src={images[currentIdx]}
+                              alt={`${listing.title} ${currentIdx + 1}`}
+                              style={{
+                                maxWidth: '100%',
+                                width: 120,
+                                height: 100,
+                                objectFit: 'cover',
+                                borderRadius: 8,
+                                border: '1px solid #eee',
+                                background: '#fff'
+                              }}
+                            />
+                            {images.length > 1 && (
+                              <>
+                                <button
+                                  onClick={handlePrev}
+                                  style={{
+                                    position: 'absolute',
+                                    left: 4,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'rgba(74,114,164,0.7)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: 28,
+                                    height: 28,
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: 18,
+                                    zIndex: 2
+                                  }}
+                                  onMouseDown={e => e.preventDefault()}
+                                >&lt;</button>
+                                <button
+                                  onClick={handleNext}
+                                  style={{
+                                    position: 'absolute',
+                                    right: 4,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'rgba(74,114,164,0.7)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: 28,
+                                    height: 28,
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: 18,
+                                    zIndex: 2
+                                  }}
+                                  onMouseDown={e => e.preventDefault()}
+                                >&gt;</button>
+                              </>
+                            )}
+                          </>
                         ) : (
                           <span style={{ color: '#666', fontSize: 16, fontFamily: 'inherit' }}>Picture of Item</span>
                         )}
@@ -193,7 +278,6 @@ function ListingsPage() {
                         </div>
                         <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4, fontFamily: 'inherit' }}>{listing.title}</div>
                         <div style={{ color: '#444', marginBottom: 8, fontFamily: 'inherit' }}>{listing.description}</div>
-                        {/* Location and Condition */}
                         <div style={{ color: '#555', fontSize: 15, marginBottom: 4, fontFamily: 'inherit' }}>
                           <b>Location:</b> {listing.location || <span style={{ color: '#aaa' }}>N/A</span>}
                         </div>
