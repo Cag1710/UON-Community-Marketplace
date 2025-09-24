@@ -2,12 +2,36 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+const FAQS = [
+  {
+    question: "How do I create a listing?",
+    answer: "Go to the 'Create Listing' page, fill out the form, and submit your item for others to see."
+  },
+  {
+    question: "How do I contact a seller?",
+    answer: "Click on a listing and use the 'Message Seller' button to start a conversation."
+  },
+  {
+    question: "Can I edit or delete my listing?",
+    answer: ""
+  },
+  {
+    question: "Is my email address visible to others?",
+    answer: "No, your email is never shared publicly. Communication happens through the platform's messaging system."
+  },
+  {
+    question: "Who can use this marketplace?",
+    answer: "The marketplace is for the UON community. You may need a valid university email to sign up."
+  }
+];
+
 function ContactUsPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [openFaq, setOpenFaq] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,19 +58,22 @@ function ContactUsPage() {
         minHeight: '100vh',
         background: '#f9f9f9'
       }}>
-        <div style={{
-          flex: 1,
-          maxWidth: 500,
-          margin: '40px auto',
-          background: '#fff',
-          borderRadius: 20,
-          boxShadow: '0 4px 24px rgba(74,114,164,0.10)',
-          border: '1px solid #e0e0e0',
-          padding: 40,
-          fontFamily: 'inherit',
-          width: '100%',
-        }}>
-          <h1 style={{ color: '#4A72A4', fontWeight: 800, marginBottom: 16 }}>Contact Us</h1>
+        <div
+          className="contactus-container"
+          style={{
+            flex: 1,
+            maxWidth: 500,
+            margin: '40px auto',
+            background: '#fff',
+            borderRadius: 20,
+            boxShadow: '0 4px 24px rgba(74,114,164,0.10)',
+            border: '1px solid #e0e0e0',
+            padding: 40,
+            fontFamily: 'inherit',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+          <h1 style={{ color: '#222', fontWeight: 800, marginBottom: 16 }}>Contact Us</h1>
           <p style={{ fontSize: 16, color: '#444', marginBottom: 24 }}>
             Have a question, suggestion, or need help? Fill out the form below and we'll get back to you as soon as possible.
           </p>
@@ -125,6 +152,56 @@ function ContactUsPage() {
               </button>
             </form>
           )}
+
+          {/* FAQ Section */}
+          <div className="contactus-faq" style={{ marginTop: 48 }}>
+            <h2 style={{ color: '#222', fontWeight: 700, marginBottom: 16 }}>Frequently Asked Questions</h2>
+            <div>
+              {FAQS.map((faq, idx) => (
+                <div key={idx} style={{
+                  marginBottom: 12,
+                  borderBottom: '1px solid #e0e0e0',
+                  paddingBottom: 8
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#35547a',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: 0,
+                      outline: 'none'
+                    }}
+                  >
+                    {faq.question}
+                    <span style={{
+                      float: 'right',
+                      fontWeight: 'bold',
+                      fontSize: 18
+                    }}>
+                      {openFaq === idx ? '-' : '+'}
+                    </span>
+                  </button>
+                  {openFaq === idx && (
+                    <div style={{
+                      marginTop: 6,
+                      color: '#444',
+                      fontSize: 15,
+                      lineHeight: 1.5
+                    }}>
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <Footer />
       </div>

@@ -180,3 +180,16 @@ body {
   }
 }
 
+@media (max-width: 600px) {
+  .contactus-container {
+    max-width: 100% !important;
+    margin: 16px 0 !important;
+    padding: 16px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .contactus-faq {
+    margin-top: 32px !important;
+  }
+}
+
