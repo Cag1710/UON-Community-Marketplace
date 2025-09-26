@@ -21,11 +21,11 @@ import {
 } from "../lib/socket";
 
 const COLORS = {
-  pageBg: "#0f172a",
-  paneBg: "#111827",
-  paneBorder: "#1f2937",
-  textPrimary: "#e5e7eb",
-  textMuted: "#9ca3af",
+  pageBg: "linear-gradient(to right, #f7f9fc, #eef2f7)", // FAQ style background
+  paneBg: "transparent",   // let gradient show
+  paneBorder: "#d1d5db",   // light grey borders
+  textPrimary: "#111827",  // dark text
+  textMuted: "#6b7280",    // muted grey
   accent: "#4A72A4",
   accentHover: "#35547a",
   bubbleOther: "#e5e7eb",
@@ -42,7 +42,6 @@ export default function MessagePage() {
   const [authReady, setAuthReady] = useState(false);
   const [userId, setUserId] = useState(null);
 
-  // wait for Firebase auth to settle (prevents false "please log in" flashes)
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUserId(u?.uid || null);
@@ -66,13 +65,11 @@ export default function MessagePage() {
   const activeConvoIdRef = useRef(null);
   const seenKeysRef = useRef(new Set());
 
-  // socket connect after auth
   useEffect(() => {
     if (!userId) return;
     connectAs(userId);
   }, [userId]);
 
-  // fetch conversations (deduped)
   useEffect(() => {
     if (!userId) return;
     getConversations(userId)
@@ -93,11 +90,9 @@ export default function MessagePage() {
       .catch(console.error);
   }, [userId]);
 
-  // deep-link from listing page
   useEffect(() => {
     if (!userId || !listingIdQS || !sellerIdQS) return;
 
-    // prevent self-DM: if listing owner == me, just open existing convo if any
     if (sellerIdQS === userId) {
       const existing = conversations.find(
         (c) =>
@@ -130,9 +125,8 @@ export default function MessagePage() {
   async function selectConversation(convo) {
     setSelectedConvo(convo);
     activeConvoIdRef.current = String(convo._id);
-    seenKeysRef.current = new Set(); // reset dedupe scope per convo
+    seenKeysRef.current = new Set();
 
-    // fetch listing
     try {
       if (convo.listing?._id) setListing(convo.listing);
       else if (convo.listingId) setListing(await getListing(convo.listingId));
@@ -141,7 +135,6 @@ export default function MessagePage() {
       setListing(null);
     }
 
-    // fetch messages
     try {
       const msgs = await getMessages(convo._id);
       setMessages(msgs || []);
@@ -157,7 +150,6 @@ export default function MessagePage() {
     }
   }
 
-  // socket listeners
   useEffect(() => {
     if (!userId) return;
 
@@ -169,7 +161,6 @@ export default function MessagePage() {
 
       if (keyById && seenKeysRef.current.has(keyById)) return;
 
-      // replace optimistic temp if present
       if (seenKeysRef.current.has(keyByFp)) {
         setMessages((prev) => {
           const withoutTemps = prev.filter(
@@ -222,7 +213,6 @@ export default function MessagePage() {
     };
   }, [userId, selectedConvo]);
 
-  // owner cannot send first
   const isOwner = useMemo(() => {
     if (!listing || !userId) return false;
     return String(listing.userId) === String(userId);
@@ -235,7 +225,6 @@ export default function MessagePage() {
 
   const canSend = !!selectedConvo && (!isOwner || hasMessageFromOther);
 
-  // send (optimistic + enter key)
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed || !selectedConvo || !userId || !canSend) return;
@@ -273,7 +262,6 @@ export default function MessagePage() {
     }
   };
 
-  // unsend one message
   const handleUnsend = async (messageId) => {
     try {
       await deleteMessage(messageId);
@@ -283,7 +271,6 @@ export default function MessagePage() {
     }
   };
 
-  // delete entire conversation
   const handleDeleteConversation = async () => {
     if (!selectedConvo) return;
     const ok = window.confirm("Delete this conversation for both participants?");
@@ -302,15 +289,14 @@ export default function MessagePage() {
     }
   };
 
-  // ---------- RENDER ----------
   return (
     <>
       <Navbar />
       {!authReady ? (
-        <div style={{ padding: 24, color: "#e5e7eb" }}>Loading…</div>
+        <div style={{ padding: 24, color: COLORS.textPrimary }}>Loading…</div>
       ) : !userId ? (
-        <div style={{ padding: 24, color: "#e5e7eb" }}>
-          Please <a href="/login" style={{ color: "#8ab4ff" }}>log in</a> to use Messages.
+        <div style={{ padding: 24, color: COLORS.textPrimary }}>
+          Please <a href="/login" style={{ color: COLORS.accent }}>log in</a> to use Messages.
         </div>
       ) : (
         <div
@@ -362,7 +348,7 @@ export default function MessagePage() {
                     padding: "10px 12px",
                     border: "0",
                     borderBottom: `1px solid ${COLORS.paneBorder}`,
-                    background: isActive ? "#1b2437" : "transparent",
+                    background: isActive ? "#e5e7eb" : "transparent",
                     cursor: "pointer",
                     color: COLORS.textPrimary,
                   }}
@@ -402,7 +388,7 @@ export default function MessagePage() {
                 padding: 12,
                 borderBottom: `1px solid ${COLORS.paneBorder}`,
                 fontWeight: 700,
-                background: "#0b1220",
+                background: "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -512,7 +498,7 @@ export default function MessagePage() {
                   padding: "12px 14px",
                   borderRadius: 10,
                   border: `1px solid ${COLORS.paneBorder}`,
-                  background: "#0b1220",
+                  background: "#fff",
                   color: COLORS.textPrimary,
                   outline: "none",
                 }}
