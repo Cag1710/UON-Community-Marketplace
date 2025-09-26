@@ -10,6 +10,7 @@ import CreateListingPage from './pages/CreateListingPage';
 import AdminPortalPage from './pages/AdminPortalPage';
 import ListingDetailPage from './pages/ListingDetailPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import FaqPage from "./pages/FaqPage";   // ✅ import FAQ page
 
 const routes = [
   {
@@ -37,7 +38,7 @@ const routes = [
     element: <MessagePage />
   },
   {
-    path: 'forgot-password',
+    path: '/forgot-password',
     element: <ForgotPasswordPage />
   },
   {
@@ -45,24 +46,25 @@ const routes = [
     element: <AdminPortalPage />
   },
   {
-    path: '/listing/:id', 
+    path: '/listing/:id',
     element: <ListingDetailPage />
   },
   {
-  path: '/privacy-policy',
-  element: <PrivacyPolicy />
+    path: '/privacy-policy',
+    element: <PrivacyPolicy />
   },
-
+  {
+    path: '/faq',                 
+    element: <FaqPage />
+  },
 ];
-
 
 const router = createBrowserRouter(routes);
 
 function App() {
-
   return (
     <>
-        <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </>
   )
 }
