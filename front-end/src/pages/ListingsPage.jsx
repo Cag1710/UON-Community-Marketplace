@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
@@ -13,10 +13,14 @@ function ListingsPage() {
   const [notMyListings, setNotMyListings] = useState(false);
   const [userMap, setUserMap] = useState({});
   const [imageIndexes, setImageIndexes] = useState({});
+  const [reportOpenFor, setReportOpenFor] = useState(null);
+  const [reportType, setReportType] = useState('Inappropriate');
+  const [reportDetails, setReportDetails] = useState('');
 
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user ? user.uid : null;
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
   const navigate = useNavigate();
 
@@ -74,6 +78,40 @@ function ListingsPage() {
     } catch (e) {
       console.error(e);
       alert('Something went wrong opening the chat.');
+    }
+  };
+
+  async function submitReport() {
+    try {
+      const curr = getAuth().currentUser;
+      if (!curr) { alert('Please sign in to report'); return; }
+
+      const token = await curr.getIdToken();
+      const res = await fetch(`${API_BASE}/api/reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listingId: reportOpenFor,
+          reportType,
+          details: reportDetails
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
+      alert('Report submitted. Thanks!');
+      setReportOpenFor(null);
+      setReportType('Inappropriate');
+      setReportDetails('');
+    } catch (e) {
+      console.error(e);
+      alert('Could not submit report.');
     }
   };
 
@@ -309,6 +347,20 @@ function ListingsPage() {
                         >
                           Message Seller
                         </button>
+                        <button
+                          style={{
+                            marginTop: 8, marginLeft: 8,
+                            padding: '8px 16px', borderRadius: 8, border: '1px solid #bbb',
+                            background: '#fff', color: '#333', cursor: 'pointer', fontWeight: 'bold'
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setReportOpenFor(listing._id);
+                          }}
+                        >
+                          Report
+                        </button>
                       </div>
                     </div>
                   </Link>
@@ -316,6 +368,46 @@ function ListingsPage() {
               })}
             </div>
           </main>
+          {reportOpenFor && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+            }}
+              onClick={() => setReportOpenFor(null)}
+            >
+              <div
+                style={{ background: '#fff', padding: 16, borderRadius: 8, minWidth: 320 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginTop: 0 }}>Report listing</h3>
+
+                <label>
+                  Reason:{' '}
+                  <select value={reportType} onChange={e => setReportType(e.target.value)}>
+                    <option value="Inappropriate">Inappropriate content</option>
+                    <option value="Scam/Fraud">Scam / Fraud</option>
+                    <option value="Spam">Spam</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </label>
+
+                <div style={{ marginTop: 8 }}>
+                  <textarea
+                    placeholder="Optional details…"
+                    value={reportDetails}
+                    onChange={e => setReportDetails(e.target.value)}
+                    rows={4}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setReportOpenFor(null)}>Cancel</button>
+                  <button onClick={submitReport}>Submit</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <Footer />
       </div>

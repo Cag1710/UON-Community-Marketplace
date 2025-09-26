@@ -283,6 +283,44 @@ app.delete('/api/messages/:messageId', async (req, res) => {
   }
 });
 
+app.post('/api/reports', requireAuth, async (req, res) => {
+  try {
+    const { listingId, reportType, details } = req.body || {};
+    if (typeof listingId !== 'string' || typeof reportType !== 'string') {
+      return res.status(400).json({ error: 'listingId and reportType required' });
+    }
+
+    const doc = {
+      listingId,
+      reportType,
+      details: details || '',
+      reportedBy: req.user.uid,     
+      createdAt: new Date(),
+      status: 'open',            
+    };
+
+    const result = await db.collection('reports').insertOne(doc);
+    res.json({ ok: true, id: result.insertedId });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/reports', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const reports = await db.collection('reports')
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .toArray();
+    res.json(reports);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ===================== SOCKET.IO =====================
 io.on('connection', (socket) => {
   console.log('Socket connected:', socket.id);
