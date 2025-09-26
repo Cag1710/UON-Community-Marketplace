@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
@@ -26,25 +25,29 @@ function ListingsPage() {
 
   useEffect(() => {
     (async () => {
+      // 1) load listings
       const res = await fetch('http://localhost:8000/api/listings');
       const data = await res.json();
       setListings(data);
 
+      // 2) load public user profiles (username/email) from backend
+      const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
       const uniqueUserIds = [...new Set(data.map(l => l.userId).filter(Boolean))];
-      const db = getFirestore();
-      const map = {};
 
-      await Promise.all(
-        uniqueUserIds.map(async uid => {
-          try {
-            const snap = await getDoc(doc(db, 'users', uid));
-            if (snap.exists()) map[uid] = snap.data();
-          } catch {
-            /* ignore */
-          }
-        })
-      );
-      setUserMap(map);
+      if (uniqueUserIds.length === 0) {
+        setUserMap({});
+        return;
+      }
+
+      try {
+        const resp = await fetch(
+          `${API_BASE}/api/users/public?ids=${encodeURIComponent(uniqueUserIds.join(','))}`
+        );
+        const map = resp.ok ? await resp.json() : {};
+        setUserMap(map);
+      } catch {
+        setUserMap({});
+      }
     })();
   }, []);
 
