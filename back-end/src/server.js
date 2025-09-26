@@ -114,6 +114,38 @@ app.delete('/api/listings/:id', async (req, res) => {
   }
 });
 
+app.get('/api/users/public', async (req, res) => {
+  try {
+    const ids = String(req.query.ids || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .slice(0, 100);
+
+    if (ids.length === 0) return res.json({});
+
+    const snaps = await Promise.all(
+      ids.map(id => admin.firestore().doc(`users/${id}`).get())
+    );
+
+    const result = {};
+    snaps.forEach((snap, i) => {
+      if (snap.exists) {
+        const { username, email } = snap.data();
+        result[ids[i]] = {
+          username: username || null,
+          email: email || null,
+        };
+      }
+    });
+
+    res.json(result);
+  } catch (e) {
+    console.error('Error fetching public users:', e);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ===================== CONTACT US EMAIL =====================
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
