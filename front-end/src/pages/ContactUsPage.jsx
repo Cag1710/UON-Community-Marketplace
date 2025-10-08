@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { Link } from "react-router-dom";
 
 const FAQS = [
   {
@@ -155,7 +156,7 @@ function ContactUsPage() {
 
           {/* FAQ Section */}
           <div className="contactus-faq" style={{ marginTop: 48 }}>
-            <h2 style={{ color: '#222', fontWeight: 700, marginBottom: 16 }}>Frequently Asked Questions</h2>
+            <Link to="/faq"><h2 style={{ color: '#222', fontWeight: 700, marginBottom: 16 }}>Frequently Asked Questions</h2></Link>
             <div>
               {FAQS.map((faq, idx) => (
                 <div key={idx} style={{

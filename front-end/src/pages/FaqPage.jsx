@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 function FaqPage() {
   const [openIndex, setOpenIndex] = useState(null);
@@ -48,178 +50,186 @@ function FaqPage() {
   };
 
   return (
-    <div
-      style={{
-        padding: "50px 20px",
-        minHeight: "100vh",
-        background: "linear-gradient(to right, #f7f9fc, #eef2f7)",
-      }}
-    >
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-        <h1
-          style={{
-            marginBottom: "30px",
-            textAlign: "center",
-            color: "#1A1A40",
-            fontSize: "2.5rem",
-            fontWeight: "700",
-          }}
-        >
-          ❓ Frequently Asked Questions
-        </h1>
-
-        {/* Search bar */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <input
-            type="text"
-            placeholder="Search your question..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+    <>
+      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
+        <main style={{ flex : 1 }}>
+          <div
             style={{
-              width: "100%",
-              maxWidth: "500px",
-              padding: "14px 16px",
-              fontSize: "1.05rem",
-              borderRadius: "8px",
-              border: "1px solid #bbb",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+              padding: "50px 20px",
+              minHeight: "100vh",
+              background: "linear-gradient(to right, #f7f9fc, #eef2f7)",
             }}
-          />
-        </div>
-
-        {/* Render categories */}
-        {Object.keys(faqsByCategory).map((category) => {
-          // flatten all questions and filter by search
-          const filteredFaqs = faqsByCategory[category].filter(
-            (faq) =>
-              faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-
-          if (filteredFaqs.length === 0) return null;
-
-          return (
-            <div key={category} style={{ marginBottom: "40px" }}>
-              <h2
+          >
+            <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+              <h1
                 style={{
-                  fontSize: "1.5rem",
-                  marginBottom: "20px",
-                  color: "#2C4E80",
-                  borderLeft: "5px solid #4A72A4",
-                  paddingLeft: "10px",
+                  marginBottom: "30px",
+                  textAlign: "center",
+                  color: "#1A1A40",
+                  fontSize: "2.5rem",
+                  fontWeight: "700",
                 }}
               >
-                {category}
-              </h2>
+                ❓ Frequently Asked Questions
+              </h1>
 
-              {filteredFaqs.map((faq, index) => {
-                const key = `${category}-${index}`;
+              {/* Search bar */}
+              <div style={{ textAlign: "center", marginBottom: "40px" }}>
+                <input
+                  type="text"
+                  placeholder="Search your question..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    maxWidth: "500px",
+                    padding: "14px 16px",
+                    fontSize: "1.05rem",
+                    borderRadius: "8px",
+                    border: "1px solid #bbb",
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+                  }}
+                />
+              </div>
+
+              {/* Render categories */}
+              {Object.keys(faqsByCategory).map((category) => {
+                // flatten all questions and filter by search
+                const filteredFaqs = faqsByCategory[category].filter(
+                  (faq) =>
+                    faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+
+                if (filteredFaqs.length === 0) return null;
+
                 return (
-                  <div
-                    key={index}
-                    onClick={() => toggleFAQ(category, index)}
-                    style={{
-                      marginBottom: "15px",
-                      padding: "18px 20px",
-                      borderRadius: "10px",
-                      backgroundColor: openIndex === key ? "#f1f5fb" : "#fff",
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div
+                  <div key={category} style={{ marginBottom: "40px" }}>
+                    <h2
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        fontSize: "1.5rem",
+                        marginBottom: "20px",
+                        color: "#2C4E80",
+                        borderLeft: "5px solid #4A72A4",
+                        paddingLeft: "10px",
                       }}
                     >
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontSize: "1.2rem",
-                          color: openIndex === key ? "#2C4E80" : "#4A72A4",
-                          fontWeight: openIndex === key ? "700" : "600",
-                        }}
-                      >
-                        {highlightText(faq.question)}
-                      </h3>
-                      <span
-                        style={{
-                          transform: openIndex === key ? "rotate(90deg)" : "rotate(0deg)",
-                          transition: "transform 0.2s ease",
-                          fontSize: "1.3rem",
-                          color: openIndex === key ? "#2C4E80" : "#666",
-                        }}
-                      >
-                        ▶
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        maxHeight: openIndex === key ? "500px" : "0",
-                        opacity: openIndex === key ? 1 : 0,
-                        overflow: "hidden",
-                        transition: "all 0.4s ease",
-                      }}
-                    >
-                      <div
-                        style={{
-                          backgroundColor: "#f9fbff",
-                          borderLeft: "4px solid #4A72A4",
-                          padding: "15px 18px",
-                          borderRadius: "8px",
-                          boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-                          marginTop: "12px",
-                        }}
-                      >
-                        <p
+                      {category}
+                    </h2>
+
+                    {filteredFaqs.map((faq, index) => {
+                      const key = `${category}-${index}`;
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => toggleFAQ(category, index)}
                           style={{
-                            margin: 0,
-                            fontSize: "1.1rem",
-                            lineHeight: "1.7",
-                            color: "#222",
+                            marginBottom: "15px",
+                            padding: "18px 20px",
+                            borderRadius: "10px",
+                            backgroundColor: openIndex === key ? "#f1f5fb" : "#fff",
+                            boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
+                            cursor: "pointer",
+                            transition: "all 0.3s ease",
                           }}
                         >
-                          {highlightText(faq.answer)}
-                        </p>
-                      </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <h3
+                              style={{
+                                margin: 0,
+                                fontSize: "1.2rem",
+                                color: openIndex === key ? "#2C4E80" : "#4A72A4",
+                                fontWeight: openIndex === key ? "700" : "600",
+                              }}
+                            >
+                              {highlightText(faq.question)}
+                            </h3>
+                            <span
+                              style={{
+                                transform: openIndex === key ? "rotate(90deg)" : "rotate(0deg)",
+                                transition: "transform 0.2s ease",
+                                fontSize: "1.3rem",
+                                color: openIndex === key ? "#2C4E80" : "#666",
+                              }}
+                            >
+                              ▶
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              maxHeight: openIndex === key ? "500px" : "0",
+                              opacity: openIndex === key ? 1 : 0,
+                              overflow: "hidden",
+                              transition: "all 0.4s ease",
+                            }}
+                          >
+                            <div
+                              style={{
+                                backgroundColor: "#f9fbff",
+                                borderLeft: "4px solid #4A72A4",
+                                padding: "15px 18px",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                                marginTop: "12px",
+                              }}
+                            >
+                              <p
+                                style={{
+                                  margin: 0,
+                                  fontSize: "1.1rem",
+                                  lineHeight: "1.7",
+                                  color: "#222",
+                                }}
+                              >
+                                {highlightText(faq.answer)}
+                              </p>
+                            </div>
 
-                      {/* Feedback */}
-                      {openIndex === key && (
-                        <p style={{ marginTop: "8px", fontSize: "0.9rem", color: "#555" }}>
-                          Was this helpful?{" "}
-                          <span style={{ cursor: "pointer", marginRight: "10px" }}>👍</span>
-                          <span style={{ cursor: "pointer" }}>👎</span>
-                        </p>
-                      )}
-                    </div>
+                            {/* Feedback */}
+                            {openIndex === key && (
+                              <p style={{ marginTop: "8px", fontSize: "0.9rem", color: "#555" }}>
+                                Was this helpful?{" "}
+                                <span style={{ cursor: "pointer", marginRight: "10px" }}>👍</span>
+                                <span style={{ cursor: "pointer" }}>👎</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
-            </div>
-          );
-        })}
 
-        {/* Contact us fallback */}
-        <div style={{ marginTop: "40px", textAlign: "center" }}>
-          <p style={{ fontSize: "1.15rem", fontWeight: "500" }}>
-            Can’t find your question?{" "}
-            <a
-              href="/contact"
-              style={{
-                color: "#2C4E80",
-                fontWeight: "700",
-                textDecoration: "none",
-              }}
-            >
-              Contact us
-            </a>
-          </p>
-        </div>
+              {/* Contact us fallback */}
+              <div style={{ marginTop: "40px", textAlign: "center" }}>
+                <p style={{ fontSize: "1.15rem", fontWeight: "500" }}>
+                  Can’t find your question?{" "}
+                  <a
+                    href="/contact"
+                    style={{
+                      color: "#2C4E80",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Contact us
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
-    </div>
+    </>
   );
 }
 
