@@ -80,11 +80,11 @@ function ListingsPage() {
       const listing = await res.json();
       const sellerId = listing.userId;
       navigate(`/messages?listingId=${id}&sellerId=${sellerId}`);
-    } catch (e) {
-      console.error(e);
-      alert('Something went wrong opening the chat.');
-    }
-  };
+  } catch (e) {
+    console.error(e);
+    alert("Something went wrong opening the chat.");
+  }
+};
 
   // Reporting Actions
   async function submitListingReport({ reportType, details }) {
@@ -121,6 +121,7 @@ function ListingsPage() {
     }
   }
 
+  // Renders the lisitng page
   return (
     <>
       <Navbar />

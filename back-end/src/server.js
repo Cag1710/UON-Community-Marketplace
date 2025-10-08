@@ -1,3 +1,4 @@
+// server.js
 import express from 'express';
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
@@ -72,9 +73,7 @@ app.get('/api/listings', async (req, res) => {
 
 app.get('/api/listings/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
-    if (!listing) return res.status(404).json({ error: 'Listing not found' });
+    const listing = await db.collection('listings').findOne({ _id: new ObjectId(req.params.id) });
     res.json(listing);
   } catch (error) {
     console.error('Error fetching listing:', error);
@@ -235,6 +234,7 @@ app.post('/api/conversations', async (req, res) => {
   }
 });
 
+/* Delete conversation + its messages, emit to both participants */
 app.delete('/api/conversations/:conversationId', async (req, res) => {
   try {
     const conversationId = req.params.conversationId;
@@ -255,7 +255,7 @@ app.delete('/api/conversations/:conversationId', async (req, res) => {
   }
 });
 
-// ===================== MESSAGES =====================
+/* ===================== MESSAGES ===================== */
 app.get('/api/messages/:conversationId', async (req, res) => {
   try {
     const messages = await db.collection('messages')
@@ -276,13 +276,13 @@ app.post('/api/messages', async (req, res) => {
       conversationId,
       senderId,
       text,
-      createdAt: new Date(),
+      createdAt: new Date()
     };
     const result = await db.collection('messages').insertOne(newMessage);
 
     await db.collection('conversations').updateOne(
       { _id: new ObjectId(conversationId) },
-      { $set: { lastMessage: text, updatedAt: new Date() } },
+      { $set: { lastMessage: text, updatedAt: new Date() } }
     );
 
     res.status(201).json({ id: result.insertedId, ...newMessage });
@@ -292,6 +292,7 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
+/* Unsend (delete) a single message + emit to both users */
 app.delete('/api/messages/:messageId', async (req, res) => {
   try {
     const messageId = req.params.messageId;
@@ -304,7 +305,7 @@ app.delete('/api/messages/:messageId', async (req, res) => {
     (convo?.participants || []).forEach(uid => {
       io.to(String(uid)).emit('messageDeleted', {
         conversationId: msg.conversationId,
-        messageId,
+        messageId
       });
     });
 
@@ -440,4 +441,5 @@ async function start() {
     console.log('Server with Socket.io listening on port 8000');
   });
 }
+
 start();

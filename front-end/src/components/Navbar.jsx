@@ -20,7 +20,7 @@ function Navbar() {
         <Link to="/" style={styles.link}>Home</Link>
         <Link to="/listings" style={styles.link}>Listings</Link>
         <Link to="/contact-us" style={styles.link}>Contact Us</Link>
-        <Link to="/help" style={styles.link}>Help</Link>
+        <Link to="/faq" style={styles.link}>Help</Link>
         <Link to="/create-listing" style={styles.link}>Create Listing</Link>
         <Link to="/messages" style={styles.link}>Messages</Link>
       </div>
@@ -83,14 +83,14 @@ const styles = {
     cursor: 'pointer',
   },
   logoImg: {
-  width: '40px',
-  height: '40px',
-  marginRight: '12px',
-  verticalAlign: 'middle',
-  borderRadius: '50%',
-  objectFit: 'cover',
-  background: 'white'
-},
+    width: '40px',
+    height: '40px',
+    marginRight: '12px',
+    verticalAlign: 'middle',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    background: 'white'
+  },
 };
 
 export default Navbar;
