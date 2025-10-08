@@ -86,7 +86,7 @@ function ListingsPage() {
     }
   };
 
-  // --- Reporting actions ---
+  // Reporting Actions
   async function submitListingReport({ reportType, details }) {
     try {
       await submitReport({
@@ -120,7 +120,6 @@ function ListingsPage() {
       alert(e.message || 'Could not submit report.');
     }
   }
-  // ------------------------
 
   return (
     <>

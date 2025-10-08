@@ -15,7 +15,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'DELETE'],
+    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
     credentials: true,
   },
 });
@@ -317,18 +317,33 @@ app.delete('/api/messages/:messageId', async (req, res) => {
 
 app.post('/api/reports', requireAuth, async (req, res) => {
   try {
-    const { listingId, reportType, details } = req.body || {};
-    if (typeof listingId !== 'string' || typeof reportType !== 'string') {
-      return res.status(400).json({ error: 'listingId and reportType required' });
+    const { targetType: rawType, targetId: rawId, reportType, details, listingId } = req.body || {};
+
+    let targetType = rawType;
+    let targetId = rawId;
+    if (!targetType && typeof listingId === 'string') {
+      targetType = 'listing';
+      targetId = listingId;
+    }
+
+    if (!['listing', 'user'].includes(targetType || '')) {
+      return res.status(400).json({ error: 'Invalid or missing targetType (listing|user)' });
+    }
+    if (typeof targetId !== 'string' || !targetId.trim()) {
+      return res.status(400).json({ error: 'Missing targetId' });
+    }
+    if (typeof reportType !== 'string' || !reportType.trim()) {
+      return res.status(400).json({ error: 'Missing reportType' });
     }
 
     const doc = {
-      listingId,
+      targetType,
+      targetId,
       reportType,
       details: details || '',
-      reportedBy: req.user.uid,     
+      reportedBy: req.user.uid,
+      status: 'open',
       createdAt: new Date(),
-      status: 'open',            
     };
 
     const result = await db.collection('reports').insertOne(doc);
@@ -341,12 +356,42 @@ app.post('/api/reports', requireAuth, async (req, res) => {
 
 app.get('/api/reports', requireAuth, requireAdmin, async (req, res) => {
   try {
+    const { targetType, status, targetId } = req.query || {};
+    const q = {};
+    if (targetType && ['listing', 'user'].includes(String(targetType))) q.targetType = String(targetType);
+    if (status && ['open', 'reviewing', 'closed'].includes(String(status))) q.status = String(status);
+    if (targetId && String(targetId).trim()) q.targetId = String(targetId);
+
     const reports = await db.collection('reports')
-      .find({})
+      .find(q)
       .sort({ createdAt: -1 })
       .limit(200)
       .toArray();
+
     res.json(reports);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.patch('/api/reports/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body || {};
+    if (!['open', 'reviewing', 'closed'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const id = req.params.id;
+    const result = await db.collection('reports').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status } }
+    );
+
+    if (result.matchedCount === 0)
+      return res.status(404).json({ error: 'Report not found' });
+
+    res.json({ ok: true });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Internal server error' });
