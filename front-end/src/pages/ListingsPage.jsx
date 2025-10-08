@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getAuth } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
+import ReportDialog from '../components/ReportDialog';
+import { submitReport } from '../lib/reporting';
 
 const CATEGORIES = ['Textbook', 'Electronic', 'Furniture', 'Clothing', 'Other'];
 
@@ -12,9 +14,9 @@ function ListingsPage() {
   const [notMyListings, setNotMyListings] = useState(false);
   const [userMap, setUserMap] = useState({});
   const [imageIndexes, setImageIndexes] = useState({});
+
   const [reportOpenFor, setReportOpenFor] = useState(null);
-  const [reportType, setReportType] = useState('Inappropriate');
-  const [reportDetails, setReportDetails] = useState('');
+  const [userReport, setUserReport] = useState(null);
 
   const auth = getAuth();
   const user = auth.currentUser;
@@ -26,12 +28,11 @@ function ListingsPage() {
   useEffect(() => {
     (async () => {
       // 1) load listings
-      const res = await fetch('http://localhost:8000/api/listings');
+      const res = await fetch(`${API_BASE}/api/listings`);
       const data = await res.json();
       setListings(data);
 
       // 2) load public user profiles (username/email) from backend
-      const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
       const uniqueUserIds = [...new Set(data.map(l => l.userId).filter(Boolean))];
 
       if (uniqueUserIds.length === 0) {
@@ -49,6 +50,7 @@ function ListingsPage() {
         setUserMap({});
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCategoryChange = (category) => {
@@ -70,7 +72,7 @@ function ListingsPage() {
 
   const handleMessage = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/listings/${id}`);
+      const res = await fetch(`${API_BASE}/api/listings/${id}`);
       if (!res.ok) {
         alert("Couldn't open chat for this listing.");
         return;
@@ -84,39 +86,41 @@ function ListingsPage() {
     }
   };
 
-  async function submitReport() {
+  // --- Reporting actions ---
+  async function submitListingReport({ reportType, details }) {
     try {
-      const curr = getAuth().currentUser;
-      if (!curr) { alert('Please sign in to report'); return; }
-
-      const token = await curr.getIdToken();
-      const res = await fetch(`${API_BASE}/api/reports`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          listingId: reportOpenFor,
-          reportType,
-          details: reportDetails
-        })
+      await submitReport({
+        apiBase: API_BASE,
+        targetType: 'listing',
+        targetId: reportOpenFor,
+        reportType,
+        details,
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `HTTP ${res.status}`);
-      }
-
       alert('Report submitted. Thanks!');
       setReportOpenFor(null);
-      setReportType('Inappropriate');
-      setReportDetails('');
     } catch (e) {
       console.error(e);
-      alert('Could not submit report.');
+      alert(e.message || 'Could not submit report.');
     }
-  };
+  }
+
+  async function submitUserReport({ reportType, details }) {
+    try {
+      await submitReport({
+        apiBase: API_BASE,
+        targetType: 'user',
+        targetId: userReport.userId,
+        reportType,
+        details,
+      });
+      alert('User reported. Thanks!');
+      setUserReport(null);
+    } catch (e) {
+      console.error(e);
+      alert(e.message || 'Could not submit report.');
+    }
+  }
+  // ------------------------
 
   return (
     <>
@@ -350,6 +354,8 @@ function ListingsPage() {
                         >
                           Message Seller
                         </button>
+
+                        {/* Report listing */}
                         <button
                           style={{
                             marginTop: 8, marginLeft: 8,
@@ -362,7 +368,25 @@ function ListingsPage() {
                             setReportOpenFor(listing._id);
                           }}
                         >
-                          Report
+                          Report Listing
+                        </button>
+
+                        {/* Report user */}
+                        <button
+                          style={{
+                            marginTop: 8, marginLeft: 8,
+                            padding: '8px 16px', borderRadius: 8, border: '1px solid #bbb',
+                            background: '#fff', color: '#333', cursor: 'pointer', fontWeight: 'bold'
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const s = userMap[listing.userId];
+                            const label = s?.username || s?.email || listing.userId;
+                            setUserReport({ userId: listing.userId, label });
+                          }}
+                        >
+                          Report Seller
                         </button>
                       </div>
                     </div>
@@ -371,45 +395,26 @@ function ListingsPage() {
               })}
             </div>
           </main>
+
+          {/* Report dialogs */}
           {reportOpenFor && (
-            <div style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-            }}
-              onClick={() => setReportOpenFor(null)}
-            >
-              <div
-                style={{ background: '#fff', padding: 16, borderRadius: 8, minWidth: 320 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h3 style={{ marginTop: 0 }}>Report listing</h3>
+            <ReportDialog
+              open
+              onClose={() => setReportOpenFor(null)}
+              title="Report listing"
+              targetLabel={filteredListings.find(x => x._id === reportOpenFor)?.title}
+              onSubmit={submitListingReport}
+            />
+          )}
 
-                <label>
-                  Reason:{' '}
-                  <select value={reportType} onChange={e => setReportType(e.target.value)}>
-                    <option value="Inappropriate">Inappropriate content</option>
-                    <option value="Scam/Fraud">Scam / Fraud</option>
-                    <option value="Spam">Spam</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </label>
-
-                <div style={{ marginTop: 8 }}>
-                  <textarea
-                    placeholder="Optional details…"
-                    value={reportDetails}
-                    onChange={e => setReportDetails(e.target.value)}
-                    rows={4}
-                    style={{ width: '100%' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                  <button onClick={() => setReportOpenFor(null)}>Cancel</button>
-                  <button onClick={submitReport}>Submit</button>
-                </div>
-              </div>
-            </div>
+          {userReport && (
+            <ReportDialog
+              open
+              onClose={() => setUserReport(null)}
+              title="Report user"
+              targetLabel={userReport.label}
+              onSubmit={submitUserReport}
+            />
           )}
         </div>
         <Footer />

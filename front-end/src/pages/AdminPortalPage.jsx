@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Navbar from "../components/Navbar";
-import AdminListings from "../components/AdminListings";
+import AdminReportedAccounts from "../components/AdminReportedAccounts";
 import AdminAccounts from "../components/AdminAccounts";
 import AdminReportedContent from "../components/AdminReportedContent";
 import useUser from "../useUser";
@@ -16,7 +16,7 @@ export default function AdminPortalPage() {
 
     const renderContent = () => {
         switch(activeTab){
-            case "listings":    return <AdminListings />;
+            case "listings":    return <AdminReportedAccounts />;
             case "accounts":    return <AdminAccounts />;
             case "reports":     return <AdminReportedContent />
             default:            return null;
@@ -24,9 +24,9 @@ export default function AdminPortalPage() {
     };
 
     const buttons = [
-        { label: "Manage Listings", key: "listings" },
-    { label: "User Accounts", key: "accounts" },
-    { label: "Reported Content", key: "reports" }
+        { label: "User Accounts", key: "accounts" },
+        { label: "Reported Accounts", key: "listings" },
+        { label: "Reported Listings", key: "reports" }
     ];
 
     const getButtonStyle = (key) => {
