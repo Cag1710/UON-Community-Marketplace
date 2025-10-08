@@ -12,7 +12,7 @@ import ListingDetailPage from './pages/ListingDetailPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
-
+import FaqPage from "./pages/FaqPage";
 
 const routes = [
   {
@@ -40,7 +40,7 @@ const routes = [
     element: <MessagePage />
   },
   {
-    path: 'forgot-password',
+    path: '/forgot-password',
     element: <ForgotPasswordPage />
   },
   {
@@ -48,7 +48,7 @@ const routes = [
     element: <AdminPortalPage />
   },
   {
-    path: '/listing/:id', 
+    path: '/listing/:id',
     element: <ListingDetailPage />
   },
   {
@@ -62,17 +62,19 @@ const routes = [
   {
     path: '/contact-us',
     element: <ContactUsPage />
+  },
+  {
+    path: '/faq',                 
+    element: <FaqPage />
   }
 ];
-
 
 const router = createBrowserRouter(routes);
 
 function App() {
-
   return (
     <>
-        <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </>
   )
 }
