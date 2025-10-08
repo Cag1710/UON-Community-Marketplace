@@ -54,7 +54,7 @@ export default function LoginPage() {
 
                 <div className="form-footer">
                     <Link to='/forgot-password'><small className="forgot-text">Forgot Password?</small></Link>
-                    <small className="help-text">Help</small>
+                    <Link to='/faq'><small className="help-text">Help</small></Link>
                 </div>
             </div>
         </>

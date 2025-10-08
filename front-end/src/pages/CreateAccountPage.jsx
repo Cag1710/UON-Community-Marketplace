@@ -66,11 +66,11 @@ export default function CreateAccountPage() {
             <Link to='/'><button type="button" className="form-button">Back</button></Link>
             <button type="submit" className="form-button">Create Account</button>
           </div>
+          <div className="form-footer">
+            <Link to='/login'><small className="account-text">Already Have an Account?</small></Link>
+            <Link to='/faq'><small className="help-text">Help</small></Link>
+          </div>
         </form>
-
-        <div className="form-footer">
-          <small className="help-text">Help</small>
-        </div>
       </div>
     </>
   );
