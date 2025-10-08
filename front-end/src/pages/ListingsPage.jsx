@@ -14,6 +14,7 @@ function ListingsPage() {
   const [notMyListings, setNotMyListings] = useState(false);
   const [userMap, setUserMap] = useState({});
   const [imageIndexes, setImageIndexes] = useState({});
+  const [search, setSearch] = useState('');
 
   const [reportOpenFor, setReportOpenFor] = useState(null);
   const [userReport, setUserReport] = useState(null);
@@ -61,13 +62,22 @@ function ListingsPage() {
     );
   };
 
+  // Add search filtering
   const filteredListings = listings.filter(listing => {
     const categoryMatch =
       selectedCategories.length === 0 ||
       selectedCategories.includes(listing.category);
     const notMineMatch =
       !notMyListings || (userId && listing.userId !== userId);
-    return categoryMatch && notMineMatch;
+
+    // Search by title, description, or category
+    const searchMatch = search.trim() === '' ||
+      [listing.title, listing.description, listing.category]
+        .join(' ')
+        .toLowerCase()
+        .includes(search.trim().toLowerCase());
+
+    return categoryMatch && notMineMatch && searchMatch;
   });
 
   const handleMessage = async (id) => {
@@ -189,6 +199,24 @@ function ListingsPage() {
           {/* Body (Listings) */}
           <main style={{ flex: 1 }}>
             <h1 style={{ textAlign: 'center', marginBottom: 32 }}>Items</h1>
+            {/* Search Bar */}
+            <div style={{ marginBottom: 24, textAlign: 'center' }}>
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search by title, description, or category..."
+                style={{
+                  width: '60%',
+                  maxWidth: 400,
+                  padding: '10px 16px',
+                  borderRadius: 8,
+                  border: '1.5px solid #bfcbe2',
+                  fontSize: 16,
+                  background: '#f7fafd'
+                }}
+              />
+            </div>
             <div
               className="listings-grid"
               style={{
