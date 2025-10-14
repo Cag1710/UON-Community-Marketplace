@@ -13,6 +13,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import FaqPage from "./pages/FaqPage";
+import ProfilePage from './pages/ProfilePage';
 
 const routes = [
   {
@@ -66,6 +67,10 @@ const routes = [
   {
     path: '/faq',                 
     element: <FaqPage />
+  },
+  {
+    path: '/profile',
+    element: <ProfilePage />
   }
 ];
 

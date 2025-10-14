@@ -64,7 +64,7 @@ export default function UserMenu() {
             <div style={{ fontSize: 12, color: "#64748b" }}>{isAdmin ? "Admin" : "User"}</div>
           </div>
 
-          <MenuItem to="/profile" onClick={() => setOpen(false)}>Profile</MenuItem>
+          <MenuItem to="/profile" onClick={() => setOpen(false)}>Account Settings</MenuItem>
           {isAdmin && <MenuItem to="/admin-portal">Admin Portal</MenuItem>}
           <MenuItem to="/messages" onClick={() => setOpen(false)}>Messages</MenuItem>
           <MenuItem to="/listings" onClick={() => setOpen(false)}>My Listings</MenuItem>
