@@ -14,6 +14,7 @@ import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import FaqPage from "./pages/FaqPage";
 import ProfilePage from './pages/ProfilePage';
+import MyListingsPage from './pages/MyListingsPage';
 
 const routes = [
   {
@@ -71,6 +72,10 @@ const routes = [
   {
     path: '/profile',
     element: <ProfilePage />
+  },
+  {
+    path: '/my-listings',
+    element: <MyListingsPage />
   }
 ];
 

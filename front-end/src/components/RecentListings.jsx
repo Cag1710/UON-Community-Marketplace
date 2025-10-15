@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function RecentListings() {
   const [listings, setListings] = useState([]);
-  const [imageIndexes, setImageIndexes] = useState({}); // listingId -> current image index
+  const [imageIndexes, setImageIndexes] = useState({});
 
   useEffect(() => {
     fetch('http://localhost:8000/api/listings')
       .then(res => res.json())
       .then(data => {
-        // Show 4 most recent (newest first)
         const sorted = data.slice().reverse().slice(0, 4);
         setListings(sorted);
       });
@@ -38,74 +38,80 @@ function RecentListings() {
           const imageSrc = images.length > 0 ? images[currentIdx] : null;
 
           return (
-            <div key={item._id || index} style={styles.card}>
-              <div style={{ position: 'relative', width: '100%' }}>
-                {imageSrc ? (
-                  <>
-                    <img
-                      src={imageSrc}
-                      alt={item.title}
-                      style={{
-                        height: '100px',
-                        objectFit: 'contain',
-                        width: '100%',
-                        borderRadius: 4,
-                        marginBottom: 10,
-                        background: '#fff'
-                      }}
-                    />
-                    {images.length > 1 && (
-                      <>
-                        <button
-                          onClick={e => { e.preventDefault(); handlePrev(item._id, images.length); }}
-                          style={{
-                            position: 'absolute',
-                            left: 4,
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(74,114,164,0.7)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: 24,
-                            height: 24,
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            fontSize: 14,
-                            zIndex: 2
-                          }}
-                          onMouseDown={e => e.preventDefault()}
-                        >&lt;</button>
-                        <button
-                          onClick={e => { e.preventDefault(); handleNext(item._id, images.length); }}
-                          style={{
-                            position: 'absolute',
-                            right: 4,
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(74,114,164,0.7)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: 24,
-                            height: 24,
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            fontSize: 14,
-                            zIndex: 2
-                          }}
-                          onMouseDown={e => e.preventDefault()}
-                        >&gt;</button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div style={styles.imagePlaceholder}></div>
-                )}
+            <Link
+              to={`/listing/${item._id}`}
+              key={item._id || index}
+              style={{ textDecoration: 'none', color: 'inherit', fontFamily: 'inherit' }}
+            >
+              <div style={styles.card}>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  {imageSrc ? (
+                    <>
+                      <img
+                        src={imageSrc}
+                        alt={item.title}
+                        style={{
+                          height: '100px',
+                          objectFit: 'contain',
+                          width: '100%',
+                          borderRadius: 4,
+                          marginBottom: 10,
+                          background: '#fff'
+                        }}
+                      />
+                      {images.length > 1 && (
+                        <>
+                          <button
+                            onClick={e => { e.preventDefault(); handlePrev(item._id, images.length); }}
+                            style={{
+                              position: 'absolute',
+                              left: 4,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'rgba(74,114,164,0.7)',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: 24,
+                              height: 24,
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: 14,
+                              zIndex: 2
+                            }}
+                            onMouseDown={e => e.preventDefault()}
+                          >&lt;</button>
+                          <button
+                            onClick={e => { e.preventDefault(); handleNext(item._id, images.length); }}
+                            style={{
+                              position: 'absolute',
+                              right: 4,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'rgba(74,114,164,0.7)',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: 24,
+                              height: 24,
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: 14,
+                              zIndex: 2
+                            }}
+                            onMouseDown={e => e.preventDefault()}
+                          >&gt;</button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div style={styles.imagePlaceholder}></div>
+                  )}
+                </div>
+                <h3 style={styles.title}>{item.title}</h3>
+                <p style={styles.price}>${item.price}</p>
               </div>
-              <h3 style={styles.title}>{item.title}</h3>
-              <p style={styles.price}>${item.price}</p>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -134,6 +140,8 @@ const styles = {
     borderRadius: '8px',
     boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
     textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'box-shadow 0.2s',
   },
   imagePlaceholder: {
     height: '100px',

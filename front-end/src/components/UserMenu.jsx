@@ -67,7 +67,7 @@ export default function UserMenu() {
           <MenuItem to="/profile" onClick={() => setOpen(false)}>Account Settings</MenuItem>
           {isAdmin && <MenuItem to="/admin-portal">Admin Portal</MenuItem>}
           <MenuItem to="/messages" onClick={() => setOpen(false)}>Messages</MenuItem>
-          <MenuItem to="/listings" onClick={() => setOpen(false)}>My Listings</MenuItem>
+          <MenuItem to="/my-listings" onClick={() => setOpen(false)}>My Listings</MenuItem>
 
           <hr style={{ border: 0, borderTop: "1px solid #f1f5f9", margin: "6px 0" }} />
 

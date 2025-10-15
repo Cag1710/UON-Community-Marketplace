@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 function ListingDetailPage() {
   const { id } = useParams();
@@ -17,9 +16,13 @@ function ListingDetailPage() {
         setListing(data);
         setCurrentIdx(0);
         if (data.userId) {
-          const db = getFirestore();
-          const userDoc = await getDoc(doc(db, 'users', data.userId));
-          if (userDoc.exists()) setSeller(userDoc.data());
+          // Fetch seller info from backend instead of Firestore
+          const resp = await fetch(
+            `http://localhost:8000/api/users/public?ids=${encodeURIComponent(data.userId)}`
+          );
+          const map = resp.ok ? await resp.json() : {};
+          const sellerInfo = map[data.userId];
+          if (sellerInfo) setSeller(sellerInfo);
         }
       });
   }, [id]);
