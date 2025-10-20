@@ -44,7 +44,7 @@ function RecentListings() {
               style={{ textDecoration: 'none', color: 'inherit', fontFamily: 'inherit' }}
             >
               <div style={styles.card}>
-                <div style={{ position: 'relative', width: '100%' }}>
+                <div style={{ position: 'relative', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                   {imageSrc ? (
                     <>
                       <img
@@ -127,11 +127,13 @@ const styles = {
   heading: {
     fontSize: '24px',
     marginBottom: '20px',
+    textAlign: 'center',
   },
   grid: {
     display: 'flex',
     gap: '20px',
     flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   card: {
     width: '200px',

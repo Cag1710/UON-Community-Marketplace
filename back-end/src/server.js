@@ -316,36 +316,99 @@ app.delete('/api/messages/:messageId', async (req, res) => {
   }
 });
 
+app.post('/api/admin/ban-user', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { uid, banned } = req.body || {};
+    if (typeof uid !== 'string' || typeof banned !== 'boolean') {
+      return res.status(400).json({ error: 'uid (string) and banned (boolean) required' });
+    }
+
+    await admin.auth().updateUser(uid, { disabled: banned });
+
+    await admin.firestore().doc(`users/${uid}`).set({ banned }, { merge: true });
+
+    res.json({ ok: true, message: banned ? 'User banned' : 'User unbanned' });
+  } catch (err) {
+    console.error('Error banning user:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/admin/listings/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await db.collection('listings').deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+    res.json({ ok: true, message: 'Listing deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting listing:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/admin/reports/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await db.collection('reports').deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    res.json({ ok: true, message: 'Report deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting report:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/api/reports', requireAuth, async (req, res) => {
   try {
-    const { targetType: rawType, targetId: rawId, reportType, details, listingId } = req.body || {};
+    const { listingId, reportType, details, targetType, targetId } = req.body || {};
 
-    let targetType = rawType;
-    let targetId = rawId;
-    if (!targetType && typeof listingId === 'string') {
-      targetType = 'listing';
-      targetId = listingId;
+    if (typeof reportType !== 'string') {
+      return res.status(400).json({ error: 'reportType required' });
     }
 
-    if (!['listing', 'user'].includes(targetType || '')) {
-      return res.status(400).json({ error: 'Invalid or missing targetType (listing|user)' });
-    }
-    if (typeof targetId !== 'string' || !targetId.trim()) {
-      return res.status(400).json({ error: 'Missing targetId' });
-    }
-    if (typeof reportType !== 'string' || !reportType.trim()) {
-      return res.status(400).json({ error: 'Missing reportType' });
-    }
-
+    // Base doc
     const doc = {
-      targetType,
-      targetId,
       reportType,
       details: details || '',
       reportedBy: req.user.uid,
-      status: 'open',
       createdAt: new Date(),
+      status: 'open',
+      targetType: targetType || 'listing', // default for backward compatibility
     };
+
+    if (doc.targetType === 'listing') {
+      // Support legacy listingId or new targetId
+      const normalizedListingId = listingId || (targetType === 'listing' ? targetId : null);
+      if (typeof normalizedListingId !== 'string') {
+        return res.status(400).json({ error: 'listingId and/or targetId required for listing reports' });
+      }
+
+      // enrich with owner if we can
+      let listingOwnerId = null;
+      try {
+        const listingDoc = await db.collection('listings')
+          .findOne({ _id: new ObjectId(normalizedListingId) });
+        listingOwnerId = listingDoc?.userId || null;
+      } catch {}
+
+      doc.targetId = normalizedListingId; // generic id field
+      doc.listingId = normalizedListingId; // kept for old UI
+      doc.listingOwnerId = listingOwnerId; // helps admin panel show “Reported User”
+    }
+    else if (doc.targetType === 'user') {
+      if (typeof targetId !== 'string') {
+        return res.status(400).json({ error: 'targetId (user uid) required for user reports' });
+      }
+      doc.targetId = targetId;       // user UID
+      doc.reportedUserId = targetId; // alias to make admin UI easy
+    }
+    else {
+      return res.status(400).json({ error: 'Unsupported targetType' });
+    }
 
     const result = await db.collection('reports').insertOne(doc);
     res.json({ ok: true, id: result.insertedId });
@@ -357,19 +420,25 @@ app.post('/api/reports', requireAuth, async (req, res) => {
 
 app.get('/api/reports', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { targetType, status, targetId } = req.query || {};
-    const q = {};
-    if (targetType && ['listing', 'user'].includes(String(targetType))) q.targetType = String(targetType);
-    if (status && ['open', 'reviewing', 'closed'].includes(String(status))) q.status = String(status);
-    if (targetId && String(targetId).trim()) q.targetId = String(targetId);
-
+    const { targetType } = req.query;      // 'listing' | 'user' | undefined
+    const query = targetType ? { targetType } : {};
     const reports = await db.collection('reports')
-      .find(q)
+      .find(query)
       .sort({ createdAt: -1 })
       .limit(200)
       .toArray();
-
     res.json(reports);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/reports/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.collection('reports').deleteOne({ _id: new ObjectId(id) });
+    res.json({ ok: true });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Internal server error' });

@@ -14,11 +14,19 @@ function HomePage() {
   return (
     <div>
       <Navbar />
+      <div className='container'>
       {!isLoading && (
         user ? <WelcomeSection /> : <Hero />
       )}
-      <RecentListings />
-      <MarketplaceInfo />
+      </div>
+      <section className="section section--muted">
+        <div className="section__inner">
+          <RecentListings />
+        </div>
+      </section>
+      <div className="container section">
+        <MarketplaceInfo />
+      </div>
       <Footer />
     </div>
   );

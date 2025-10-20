@@ -1,45 +1,18 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-
+import './Footer.css';
 
 function Footer() {
   return (
-    <footer style={styles.footer}>
-      <p style={styles.text}>© 2025 UON Community Marketplace</p>
-      <div style={styles.links}>
-        <Link to="/about-us" style={styles.link}>About</Link>
-        <Link to="/contact-us" style={styles.link}>Contact Us</Link>
-        <Link to="/privacy-policy" style={styles.link}>Privacy Policy</Link>
-
+    <footer className="footer">
+      <p className="footer__text">© 2025 UON Community Marketplace</p>
+      <div className="footer__links">
+        <Link to="/about-us">About</Link>
+        <Link to="/contact-us">Contact Us</Link>
+        <Link to="/privacy-policy">Privacy Policy</Link>
       </div>
     </footer>
   );
 }
-
-const styles = {
-  footer: {
-    backgroundColor: '#4A72A4',
-    color: 'white',
-    padding: '30px 40px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  text: {
-    margin: 0,
-    fontSize: '14px',
-  },
-  links: {
-    display: 'flex',
-    gap: '20px',
-  },
-  link: {
-    color: 'white',
-    textDecoration: 'none',
-    fontSize: '14px',
-    fontFamily: 'Roboto, sans-serif',
-  },
-};
 
 export default Footer;

@@ -1,95 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from "react-router-dom";
-import ProfileIcon from "../assets/profile.svg"
 import UoNLogo from "../assets/uonlogo.svg";
 import useUser from '../useUser';
-import UserMenu from "./UserMenu"
+import UserMenu from "./UserMenu";
+import "./Navbar.css";
 
 function Navbar() {
-
   const { isLoading, user } = useUser();
+  const [open, setOpen] = useState(false);
 
   return (
-    <nav style={styles.nav}>
-      <div style={styles.left}>
-        <img src={UoNLogo} alt="UON Logo" style={styles.logoImg} />
-        <h2 style={styles.logo}>UON Community Marketplace</h2>
+    <nav className="nav">
+      <div className="nav__left">
+        <img src={UoNLogo} alt="UON Logo" className="nav__logoImg" />
+        <h2 className="nav__logo">UON Community Marketplace</h2>
       </div>
 
-      <div style={styles.links}>
-        <Link to="/" style={styles.link}>Home</Link>
-        <Link to="/listings" style={styles.link}>Listings</Link>
-        <Link to="/faq" style={styles.link}>FAQ</Link>
-        <Link to="/create-listing" style={styles.link}>Create Listing</Link>
-        <Link to="/messages" style={styles.link}>Messages</Link>
+      <button
+        className="nav__toggle"
+        aria-expanded={open}
+        aria-controls="primary-nav"
+        onClick={() => setOpen(o => !o)}
+      >
+        ☰
+      </button>
+
+      <div id="primary-nav" className="nav__links" data-open={open}>
+        <Link to="/">Home</Link>
+        <Link to="/listings">Listings</Link>
+        <Link to="/faq">FAQ</Link>
+        <Link to="/create-listing">Create Listing</Link>
+        <Link to="/messages">Messages</Link>
       </div>
 
-      <div style={styles.profile}>
+      <div className="nav__profile">
         {!isLoading && user && <UserMenu />}
       </div>
     </nav>
   );
 }
-
-const styles = {
-  nav: {
-    backgroundColor: '#4A72A4',
-    color: 'white',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 40px',
-  },
-  left: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-  },
-  logo: {
-    margin: 0,
-    fontFamily: 'Roboto, sans-serif',
-    fontSize: '20px',
-  },
-  links: {
-    flex: 2,
-    display: 'flex',
-    justifyContent: 'space-evenly',
-  },
-  link: {
-    color: 'white',
-    textDecoration: 'none',
-    fontFamily: 'Roboto, sans-serif',
-    fontSize: '16px',
-    fontWeight: '500',
-    cursor: 'pointer',
-  },
-  profile: {
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  profileIcon: {
-    width: '36px',
-    height: '36px',
-    backgroundColor: 'white',
-    color: '#1A1A40',
-    borderRadius: '50%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontWeight: 'bold',
-    fontSize: '18px',
-    cursor: 'pointer',
-  },
-  logoImg: {
-    width: '40px',
-    height: '40px',
-    marginRight: '12px',
-    verticalAlign: 'middle',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    background: 'white'
-  },
-};
 
 export default Navbar;

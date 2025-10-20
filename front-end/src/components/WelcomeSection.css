@@ -1,0 +1,93 @@
+/* ========== WELCOME SECTION (Logged-in) ========== */
+
+/* Base section wrapper */
+.welcome {
+    background: #fff;
+    padding-block: clamp(16px, 4vw, 40px);
+}
+
+/* Grid layout */
+.welcome__grid {
+    display: grid;
+    align-items: center;
+    gap: clamp(12px, 3vw, 28px);
+}
+
+/* Desktop: split into text + image columns */
+@media (min-width: 900px) {
+    .welcome__grid {
+    grid-template-columns: 1.4fr 0.8fr; /* slightly more space for text */
+    }
+}
+
+/* Heading */
+.welcome__title {
+    margin: 0 0 12px;
+    color: #1A1A40;
+    font-weight: 800;
+    font-size: clamp(22px, 2.6vw, 34px);
+    line-height: 1.2;
+}
+
+/* CTA (buttons) */
+.welcome__cta {
+    display: grid;
+    gap: 10px;
+}
+@media (min-width: 640px) {
+    .welcome__cta {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    }
+}
+
+/* Illustration (right side) */
+.welcome__art {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.welcome__art img {
+    width: clamp(180px, 28vw, 360px);  /* min 180px, scales with screen, max 360px */
+    height: auto;
+    border-radius: 12px;
+}
+
+/* Buttons (reusable across site) */
+.btn {
+    display: inline-block;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn--primary {
+    background: #1A1A40;
+    color: #fff;
+    border: none;
+}
+
+.btn--primary:hover {
+    background: #2C2C60;
+}
+
+.btn--ghost {
+    background: #fff;
+    color: #1A1A40;
+    border: 2px solid #1A1A40;
+}
+
+.btn--ghost:hover {
+    background: #1A1A40;
+    color: #fff;
+}
+@media (max-width: 640px) {
+    .welcome__text {
+        text-align: center;
+    }
+}
+  
