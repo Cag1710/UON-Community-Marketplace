@@ -63,7 +63,14 @@ function requireAdmin(req, res, next) {
 // ===================== LISTINGS =====================
 app.get('/api/listings', async (req, res) => {
   try {
-    const listings = await db.collection('listings').find().toArray();
+    const includeSold = req.query.includeSold === '1' || req.query.includeSold === 'true';
+    const query = includeSold ? {} : { sold: { $ne: true } }; // returns docs missing 'sold' or sold=false
+
+    const listings = await db.collection('listings')
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
+
     res.json(listings);
   } catch (error) {
     console.error('Error fetching listings:', error);
@@ -93,6 +100,8 @@ app.post('/api/listings', async (req, res) => {
       userId,
       location,
       condition,
+      sold: false,
+      soldAt: null,
       createdAt: new Date(),
     });
     res.status(201).json({ message: 'Listing created', id: result.insertedId });
@@ -110,6 +119,36 @@ app.delete('/api/listings/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting listing:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.patch('/api/listings/:id/sell', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const listing = await db.collection('listings').findOne({ _id: new ObjectId(id) });
+    if (!listing) return res.status(404).json({ error: 'Not found' });
+
+    if (String(listing.userId) !== String(req.user.uid)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    if (listing.sold === true) return res.json(listing);
+
+    const update = {
+      $set: {
+        sold: true,
+        soldAt: new Date(),
+      },
+    };
+
+    await db.collection('listings').updateOne({ _id: new ObjectId(id) }, update);
+
+    const updated = await db.collection('listings').findOne({ _id: new ObjectId(id) });
+    return res.json(updated);
+  } catch (e) {
+    console.error('Error marking sold:', e);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
