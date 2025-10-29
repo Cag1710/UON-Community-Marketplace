@@ -213,7 +213,7 @@ function FaqPage() {
                 <p style={{ fontSize: "1.15rem", fontWeight: "500" }}>
                   Can’t find your question?{" "}
                   <a
-                    href="/contact"
+                    href="/contact-us"
                     style={{
                       color: "#2C4E80",
                       fontWeight: "700",

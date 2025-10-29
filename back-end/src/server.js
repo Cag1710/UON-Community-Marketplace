@@ -362,16 +362,28 @@ app.post('/api/admin/ban-user', requireAuth, requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'uid (string) and banned (boolean) required' });
     }
 
-    await admin.auth().updateUser(uid, { disabled: banned });
+    try {
+      // Try to disable / enable the Firebase Auth account
+      await admin.auth().updateUser(uid, { disabled: banned });
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') {
+        console.warn(`User ${uid} not found in Auth. Updating Firestore only.`);
+      } else {
+        console.error('Firebase Auth update failed:', err);
+        return res.status(500).json({ error: err.message || 'Auth update failed' });
+      }
+    }
 
+    // Mirror ban status in Firestore
     await admin.firestore().doc(`users/${uid}`).set({ banned }, { merge: true });
 
-    res.json({ ok: true, message: banned ? 'User banned' : 'User unbanned' });
+    return res.json({ ok: true, message: banned ? 'User banned' : 'User unbanned' });
   } catch (err) {
-    console.error('Error banning user:', err);
+    console.error('Ban/unban error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 app.delete('/api/admin/listings/:id', requireAuth, requireAdmin, async (req, res) => {
   try {

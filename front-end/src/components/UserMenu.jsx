@@ -55,12 +55,11 @@ export default function UserMenu() {
           role="menu"
           style={{
             position: "absolute", right: 0, marginTop: 8, minWidth: 200,
-            background: "white", border: "1px solid #e5e7eb", borderRadius: 8,
-            boxShadow: "0 10px 15px rgba(0,0,0,0.1)", zIndex: 50, padding: 8
+            background: "white", border: "1px solidrgb(39, 85, 177)", borderRadius: 8,
+            boxShadow: "0 10px 15px rgba(249, 243, 243, 0.99)", zIndex: 50, padding: 8
           }}
         >
           <div style={{ padding: "8px 10px", borderBottom: "1px solid #f1f5f9" }}>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.displayName || user?.email}</div>
             <div style={{ fontSize: 12, color: "#64748b" }}>{isAdmin ? "Admin" : "User"}</div>
           </div>
 
