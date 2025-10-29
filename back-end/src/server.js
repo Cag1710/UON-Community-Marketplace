@@ -363,7 +363,6 @@ app.post('/api/admin/ban-user', requireAuth, requireAdmin, async (req, res) => {
     }
 
     try {
-      // Try to disable / enable the Firebase Auth account
       await admin.auth().updateUser(uid, { disabled: banned });
     } catch (err) {
       if (err.code === 'auth/user-not-found') {
@@ -374,7 +373,6 @@ app.post('/api/admin/ban-user', requireAuth, requireAdmin, async (req, res) => {
       }
     }
 
-    // Mirror ban status in Firestore
     await admin.firestore().doc(`users/${uid}`).set({ banned }, { merge: true });
 
     return res.json({ ok: true, message: banned ? 'User banned' : 'User unbanned' });
@@ -421,24 +419,21 @@ app.post('/api/reports', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'reportType required' });
     }
 
-    // Base doc
     const doc = {
       reportType,
       details: details || '',
       reportedBy: req.user.uid,
       createdAt: new Date(),
       status: 'open',
-      targetType: targetType || 'listing', // default for backward compatibility
+      targetType: targetType || 'listing', 
     };
 
     if (doc.targetType === 'listing') {
-      // Support legacy listingId or new targetId
       const normalizedListingId = listingId || (targetType === 'listing' ? targetId : null);
       if (typeof normalizedListingId !== 'string') {
         return res.status(400).json({ error: 'listingId and/or targetId required for listing reports' });
       }
 
-      // enrich with owner if we can
       let listingOwnerId = null;
       try {
         const listingDoc = await db.collection('listings')
@@ -446,16 +441,16 @@ app.post('/api/reports', requireAuth, async (req, res) => {
         listingOwnerId = listingDoc?.userId || null;
       } catch {}
 
-      doc.targetId = normalizedListingId; // generic id field
-      doc.listingId = normalizedListingId; // kept for old UI
-      doc.listingOwnerId = listingOwnerId; // helps admin panel show “Reported User”
+      doc.targetId = normalizedListingId; 
+      doc.listingId = normalizedListingId; 
+      doc.listingOwnerId = listingOwnerId; 
     }
     else if (doc.targetType === 'user') {
       if (typeof targetId !== 'string') {
         return res.status(400).json({ error: 'targetId (user uid) required for user reports' });
       }
-      doc.targetId = targetId;       // user UID
-      doc.reportedUserId = targetId; // alias to make admin UI easy
+      doc.targetId = targetId;       
+      doc.reportedUserId = targetId; 
     }
     else {
       return res.status(400).json({ error: 'Unsupported targetType' });
@@ -471,7 +466,7 @@ app.post('/api/reports', requireAuth, async (req, res) => {
 
 app.get('/api/reports', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { targetType } = req.query;      // 'listing' | 'user' | undefined
+    const { targetType } = req.query;      
     const query = targetType ? { targetType } : {};
     const reports = await db.collection('reports')
       .find(query)

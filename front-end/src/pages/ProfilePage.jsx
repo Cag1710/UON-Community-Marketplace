@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import useUser from '../useUser';
 import { updateProfile } from 'firebase/auth';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 
 async function uploadToCloudinary(file, { cloudName, uploadPreset, folder }) {
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
@@ -29,14 +37,19 @@ export default function ProfilePage() {
   const { isLoading, user } = useUser();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [username, setUsername] = useState('');              // case-preserving
+  const [originalUsername, setOriginalUsername] = useState('');
+  const [originalUsernameLower, setOriginalUsernameLower] = useState('');
 
+  const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [error, setError] = useState('');
+  const [unameChecking, setUnameChecking] = useState(false);
+  const [unameError, setUnameError] = useState('');
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+  const db = getFirestore();
 
   useEffect(() => {
     if (!user) return;
@@ -44,6 +57,7 @@ export default function ProfilePage() {
     setEmail(user.email || '');
   }, [user]);
 
+  // Load current username from your API (preserve case)
   useEffect(() => {
     if (!user?.uid) return;
     (async () => {
@@ -52,7 +66,10 @@ export default function ProfilePage() {
         if (resp.ok) {
           const map = await resp.json();
           const me = map[user.uid];
-          setUsername(me?.username || '');
+          const u = me?.username || '';
+          setUsername(u);
+          setOriginalUsername(u);
+          setOriginalUsernameLower(u.toLowerCase());
         }
       } catch (err) {
         console.error('Failed to load username', err);
@@ -66,13 +83,67 @@ export default function ProfilePage() {
     };
   }, [preview]);
 
+  // --- Username validation & availability (case-insensitive) ---
+  const usernameTrimmed = useMemo(() => (username || '').trim(), [username]);
+  const usernameLower = useMemo(() => usernameTrimmed.toLowerCase(), [usernameTrimmed]);
+
+  function validateLocalUsername(name) {
+    if (!name) return 'Username is required.';
+    if (name.length < 3) return 'Username must be at least 3 characters.';
+    if (name.length > 20) return 'Username must be at most 20 characters.';
+    if (!/^[a-zA-Z0-9._]+$/.test(name)) return 'Only letters, numbers, dot and underscore allowed.';
+    return '';
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setUnameError('');
+      if (!user?.uid) return;
+
+      const localErr = validateLocalUsername(usernameTrimmed);
+      if (localErr) {
+        setUnameError(localErr);
+        return;
+      }
+
+      // If unchanged, skip
+      if (usernameLower === (originalUsernameLower || '')) {
+        setUnameError('');
+        return;
+      }
+
+      try {
+        setUnameChecking(true);
+        // Uniqueness check on lowercase field
+        const q = query(collection(db, 'users'), where('usernameLower', '==', usernameLower));
+        const snap = await getDocs(q);
+        let takenByOther = false;
+        snap.forEach((docu) => {
+          if (docu.id !== user.uid) takenByOther = true;
+        });
+        if (!cancelled) {
+          setUnameError(takenByOther ? 'This username is already taken.' : '');
+        }
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) setUnameError('Could not verify username right now.');
+      } finally {
+        if (!cancelled) setUnameChecking(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [usernameTrimmed, usernameLower, db, user?.uid, originalUsernameLower]);
+
   if (isLoading) return <div style={{ textAlign: 'center', padding: 40 }}>Loading...</div>;
   if (!user) {
     window.location.href = '/login';
     return null;
   }
 
-  const displayLabel = username || displayName || (email ? email.split('@')[0] : 'Unnamed User');
+  const displayLabel = originalUsername || displayName || (email ? email.split('@')[0] : 'Unnamed User');
   const headerAvatar = preview?.url || user?.photoURL || null;
   const avatarInitial = (displayLabel[0] || 'U').toUpperCase();
 
@@ -82,11 +153,122 @@ export default function ProfilePage() {
     if (!f.type.startsWith('image/')) return alert('Please choose an image file (jpg/png/webp).');
     if (f.size > 5 * 1024 * 1024) return alert('Max 5MB.');
     const url = URL.createObjectURL(f);
-    setPreview(prev => {
+    setPreview((prev) => {
       if (prev?.url) URL.revokeObjectURL(prev.url);
       return { file: f, url };
     });
   }
+
+  async function handleSaveBasic() {
+    try {
+      setBusy(true);
+      setError('');
+
+      const localErr = validateLocalUsername(usernameTrimmed);
+      if (localErr) {
+        setUnameError(localErr);
+        return;
+      }
+      if (unameError || unameChecking) return;
+
+      // 1) Update Firebase Auth displayName (optional)
+      if ((user.displayName || '') !== (displayName || '')) {
+        await updateProfile(user, { displayName: displayName || '' });
+      }
+
+      // 2) Update Firestore user doc – preserve case + store lowercase
+      await updateDoc(doc(db, 'users', user.uid), {
+        displayName: displayName || '',
+        username: usernameTrimmed,        // preserve case for display
+        usernameLower: usernameLower,     // for uniqueness/search
+      });
+
+      setOriginalUsername(usernameTrimmed);
+      setOriginalUsernameLower(usernameLower);
+
+      alert('Saved!');
+    } catch (e) {
+      console.error(e);
+      setError('Could not save changes.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const styles = {
+    bg: {
+      backgroundColor: '#f9fafb',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      color: '#111827',
+      fontFamily: 'Inter, sans-serif',
+    },
+    header: {
+      backgroundColor: '#fff',
+      borderBottom: '1px solid #e5e7eb',
+      padding: '2rem 1.5rem',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    content: {
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: '20px',
+      padding: '2rem 1.5rem',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      flexGrow: 1,
+    },
+    card: {
+      backgroundColor: '#fff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '10px',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+      padding: '20px',
+      flex: '1 1 300px',
+    },
+    field: { display: 'flex', flexDirection: 'column', marginBottom: '10px' },
+    label: { fontWeight: '500', fontSize: '0.875rem', marginBottom: '5px' },
+    input: { border: '1px solid #d1d5db', borderRadius: '8px', padding: '8px 10px', fontSize: '0.875rem' },
+    button: {
+      backgroundColor: '#111827',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '10px 16px',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+      marginTop: '10px',
+    },
+    resetButton: {
+      backgroundColor: '#4A72A4',
+      color: 'white',
+      border: 'none',
+      borderRadius: 6,
+      padding: '10px 18px',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      transition: 'background-color 0.2s, transform 0.1s',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+    },
+    primaryButton: {
+      backgroundColor: '#4A72A4',
+      color: 'white',
+      border: 'none',
+      borderRadius: 6,
+      padding: '10px 18px',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+    },
+    divider: { border: 0, height: 1, backgroundColor: '#e5e7eb' },
+  };
 
   return (
     <div style={styles.bg}>
@@ -135,34 +317,41 @@ export default function ProfilePage() {
         <div style={styles.card}>
           <h3>Basic Info</h3>
           <hr style={{ marginBottom: 20, ...styles.divider }} />
+
+          {!!error && <div style={{ color: '#dc2626', marginBottom: 12 }}>{error}</div>}
+
           <div style={styles.field}>
-            <label style={styles.label}>Display Name</label>
+            <label style={styles.label}>Username</label>
             <input
-              style={styles.input}
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              style={{ ...styles.input, borderColor: unameError ? '#dc2626' : '#d1d5db' }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. Caleb.G"
             />
+            <div style={{ marginTop: 6, fontSize: '0.8rem' }}>
+              {unameChecking ? (
+                <span style={{ color: '#6b7280' }}>Checking availability…</span>
+              ) : unameError ? (
+                <span style={{ color: '#dc2626' }}>{unameError}</span>
+              ) : usernameTrimmed && usernameLower !== (originalUsernameLower || '') ? (
+                <span style={{ color: '#16a34a' }}>Looks good — available.</span>
+              ) : null}
+            </div>
           </div>
+
           <button
             onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#35547a')}
             onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#4A72A4')}
-            type="submit"
-            style={styles.primaryButton}
-            disabled={busy}
-            onClick={async () => {
-              try {
-                setBusy(true);
-                await updateProfile(user, { displayName });
-                alert('Saved!');
-              } catch (e) {
-                console.error(e);
-                alert('Could not save changes.');
-              } finally {
-                setBusy(false);
-              }
+            type="button"
+            style={{
+              ...styles.primaryButton,
+              opacity: busy || unameChecking ? 0.8 : 1,
+              pointerEvents: busy || unameChecking ? 'none' : 'auto',
             }}
+            disabled={busy || unameChecking || !!unameError}
+            onClick={handleSaveBasic}
           >
-            Save Changes
+            {busy ? 'Saving…' : 'Save Changes'}
           </button>
 
           <hr style={{ margin: '25px 0 20px 0' }} />
@@ -219,8 +408,6 @@ export default function ProfilePage() {
                       });
 
                       await updateProfile(user, { photoURL: url });
-
-                      const db = getFirestore();
                       await updateDoc(doc(db, 'users', user.uid), { photoURL: url });
 
                       setPreview(null);
@@ -255,95 +442,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-const styles = {
-  bg: {
-    backgroundColor: '#f9fafb',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    color: '#111827',
-    fontFamily: 'Inter, sans-serif',
-  },
-  header: {
-    backgroundColor: '#fff',
-    borderBottom: '1px solid #e5e7eb',
-    padding: '2rem 1.5rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: '20px',
-    padding: '2rem 1.5rem',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    flexGrow: 1,
-  },
-  card: {
-    backgroundColor: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-    padding: '20px',
-    flex: '1 1 300px',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: '10px',
-  },
-  label: {
-    fontWeight: '500',
-    fontSize: '0.875rem',
-    marginBottom: '5px',
-  },
-  input: {
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    padding: '8px 10px',
-    fontSize: '0.875rem',
-  },
-  button: {
-    backgroundColor: '#111827',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '10px 16px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    marginTop: '10px',
-  },
-  resetButton: {
-    backgroundColor: '#4A72A4',
-    color: 'white',
-    border: 'none',
-    borderRadius: 6,
-    padding: '10px 18px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    transition: 'background-color 0.2s, transform 0.1s',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-  },
-  primaryButton: {
-    backgroundColor: '#4A72A4',
-    color: 'white',
-    border: 'none',
-    borderRadius: 6,
-    padding: '10px 18px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-  },
-  divider: {
-    border: 0,
-    height: 1,
-    backgroundColor: '#e5e7eb',
-  },
-};
