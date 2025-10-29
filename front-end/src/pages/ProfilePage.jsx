@@ -97,45 +97,48 @@ export default function ProfilePage() {
 
   useEffect(() => {
     let cancelled = false;
+  
     (async () => {
       setUnameError('');
       if (!user?.uid) return;
-
+  
       const localErr = validateLocalUsername(usernameTrimmed);
-      if (localErr) {
-        setUnameError(localErr);
-        return;
-      }
-
-      // If unchanged, skip
+      if (localErr) { setUnameError(localErr); return; }
+  
       if (usernameLower === (originalUsernameLower || '')) {
         setUnameError('');
         return;
       }
-
+  
+      setUnameChecking(true);
       try {
-        setUnameChecking(true);
-        // Uniqueness check on lowercase field
         const q = query(collection(db, 'users'), where('usernameLower', '==', usernameLower));
         const snap = await getDocs(q);
         let takenByOther = false;
         snap.forEach((docu) => {
           if (docu.id !== user.uid) takenByOther = true;
         });
-        if (!cancelled) {
-          setUnameError(takenByOther ? 'This username is already taken.' : '');
-        }
+        if (!cancelled) setUnameError(takenByOther ? 'This username is already taken.' : '');
       } catch (e) {
-        console.error(e);
-        if (!cancelled) setUnameError('Could not verify username right now.');
+        try {
+          const resp = await fetch(
+            `${API_BASE}/api/username-available?u=${encodeURIComponent(usernameLower)}`,
+            { headers: { 'Accept': 'application/json' } }
+          );
+          if (!resp.ok) throw new Error(`bad status ${resp.status}`);
+          const { available } = await resp.json();
+          if (!cancelled) setUnameError(available ? '' : 'This username is already taken.');
+        } catch (e2) {
+          console.error('Username availability check failed', e2);
+          if (!cancelled) setUnameError('Could not verify username right now.');
+        }
       } finally {
         if (!cancelled) setUnameChecking(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [usernameTrimmed, usernameLower, db, user?.uid, originalUsernameLower]);
+  
+    return () => { cancelled = true; };
+  }, [usernameTrimmed, usernameLower, db, user?.uid, originalUsernameLower, API_BASE]);
 
   if (isLoading) return <div style={{ textAlign: 'center', padding: 40 }}>Loading...</div>;
   if (!user) {
