@@ -1,2 +1,15 @@
+# Environment files
+.env
+.env.*
+back-end/.env
+front-end/.env
+back-end/.env.*
+front-end/.env.*
+
+# Firebase / Secrets
+serviceAccountKey*.json
+*.secret.json
+
+# Node modules
 node_modules/
 **/node_modules/
