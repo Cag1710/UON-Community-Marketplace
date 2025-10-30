@@ -294,6 +294,27 @@ app.delete('/api/conversations/:conversationId', async (req, res) => {
   }
 });
 
+
+app.get('/api/username-available', async (req, res) => {
+  try {
+    const u = String(req.query.u || '').trim().toLowerCase();
+    if (!u) return res.status(400).json({ error: 'missing u' });
+
+    const snap = await admin
+      .firestore()
+      .collection('users')
+      .where('usernameLower', '==', u)
+      .limit(1)
+      .get();
+
+    const available = snap.empty;
+    res.json({ available });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'failed' });
+  }
+});
+
 /* ===================== MESSAGES ===================== */
 app.get('/api/messages/:conversationId', async (req, res) => {
   try {
