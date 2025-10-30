@@ -16,7 +16,7 @@ dotenv.config({ path: resolve(__dirname, '../.env') });
 function loadServiceAccount() {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (raw) {
-    return JSON.parse(raw);
+    return raw;
   }
   throw new Error('No Firebase service account env var found');
 }
