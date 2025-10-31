@@ -1,0 +1,87 @@
+:root {
+    --nav-bg: #4A72A4;
+    --pad-x: 16px;
+}
+
+/* base (mobile-first) */
+.nav {
+background: var(--nav-bg);
+color: #fff;
+display: grid;
+grid-template-columns: 1fr auto auto; /* left | toggle | profile */
+align-items: center;
+gap: 12px;
+padding: 16px var(--pad-x);
+}
+
+.nav__left {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.nav__logo { 
+margin: 0;
+font-family: Roboto, sans-serif;
+font-size: 18px;
+}
+
+.nav__logoImg {
+width: 40px; height: 40px;
+border-radius: 50%;
+object-fit: cover;
+background: #fff;
+}
+
+/* hamburger button */
+.nav__toggle {
+justify-self: end;
+font-size: 1.25rem;
+padding: .4rem .6rem;
+background: transparent;
+color: #fff;
+border: 1px solid rgba(255,255,255,.5);
+border-radius: .5rem;
+cursor: pointer;
+}
+
+/* collapsible links (hidden by default on mobile) */
+.nav__links {
+grid-column: 1 / -1;        /* drop under the bar on mobile */
+display: none;
+gap: .75rem;
+padding-top: 10px;
+}
+.nav__links[data-open="true"] { display: grid; }
+
+.nav__links a {
+color: #fff;
+text-decoration: none;
+font-family: Roboto, sans-serif;
+font-size: 16px;
+font-weight: 500;
+}
+
+/* profile area */
+.nav__profile {
+justify-self: end;
+}
+
+/* larger screens */
+@media (min-width: 900px) {
+.nav {
+    grid-template-columns: 1fr auto 1fr;   /* left | links | profile */
+    padding: 16px 40px;
+}
+
+.nav__toggle { display: none; }
+
+.nav__links {
+    display: flex !important;
+    grid-column: auto;
+    gap: 40px;
+}
+
+.nav__profile { justify-self: end; }
+}
+  
