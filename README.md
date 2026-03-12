@@ -3,7 +3,7 @@
 ## Project Overview
 UON Community Marketplace is a web-based platform designed for university students to buy and sell items within their community. The goal of the project was to create a simple and secure marketplace where users can list products, browse listings, and interact with other users.
 
-This project was developed as part of a group assignment during my Bachelor of Information Technology at the University of Newcastle.
+This project was developed as part of work integrated study during my Bachelor of Information Technology at the University of Newcastle.
 
 ## Technologies Used
 - MongoDB
