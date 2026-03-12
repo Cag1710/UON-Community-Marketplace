@@ -21,10 +21,12 @@ This project was developed as part of a group assignment during my Bachelor of I
 - Simple and responsive user interface
 - Backend API for handling marketplace data
 
-## My Contribution
+## My Contribution (Ishit)
+- Designed the login and logout interface using Figma and implemented it in the application
+- Developed the user messaging feature that allows users to communicate for item trading
+- Created the Privacy Policy page for the platform
 - Assisted with frontend development using React
-- Worked on integrating backend APIs
-- Helped implement listing and browsing functionality
+- Helped integrate backend APIs for marketplace functionality
 - Participated in debugging and testing
 
 ## Learning Outcome
